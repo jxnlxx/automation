@@ -252,7 +252,7 @@ for index, row in jobs_head.iterrows(): # this construction allows us to go acro
     
     print('Saving {} to database'.format(site_url))
 
-    conn = sqlite3.connect('stat_ranks_flat.db')
+    conn = sqlite3.connect(r'L:\Commercial\Operations\Technical SEO\Automation\Data\STAT\SQL\stat_ranks_relational.db')
 
     with conn: 
     
