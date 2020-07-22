@@ -1,0 +1,11 @@
+Changelog
+
+06/04/20
+
+Added extra line at 100 to extract URL from deepcrawl project
+Amended line 108 to print both client name (from healthcheck list) and URL (from crawl) to identify discrepancies
+
+09/06/20
+
+Updated part of the deepcrawl section to speed up and simplify saving the crawl data
+-removed iteration through every cell of dataframe and added a direct save to multiple tabs in xlsx
