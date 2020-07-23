@@ -19,7 +19,7 @@ keywordcsv = "keywords.csv"
 keywords = pd.read_csv(keywordcsv)
 
 # Downloads and Calculate Slope:
-keywordlist = pd.DataFrame(columns=["keyword","slope"])
+keywordlist = pd.DataFrame(columns=["keyword", "slope"])
 for index, row in keywords.iterrows():
     print("Downloading Keyword #" + str(index))
     payload = {'geo': 'US', 'q': [row[0]]}
@@ -48,9 +48,9 @@ for index, row in keywords.iterrows():
 
     maxyear = trenddata['year'].max()
     grouped = trenddata.groupby(['year']).mean()
-    slope = slope_formula(1,float(grouped.loc[grouped.index==maxyear-2]['trends']),
-                          2,float(grouped.loc[grouped.index==maxyear-1]['trends']))
-    keywordlist = keywordlist.append({'keyword':keyword,'slope':slope}, ignore_index=True)
+    slope = slope_formula(1, float(grouped.loc[grouped.index == maxyear-2]['trends']),
+                          2, float(grouped.loc[grouped.index == maxyear-1]['trends']))
+    keywordlist = keywordlist.append({'keyword': keyword, 'slope': slope}, ignore_index=True)
     os.remove(csvname)
 
 # Specify a csv filename to output the slope values.
