@@ -30,7 +30,7 @@ print('\n'+'Welcome to the STAT API Bulk Ranks Request script!'
 
 davids_law1 = int(dt.datetime.today().strftime('%Y')) - 2
 davids_law2 = int(dt.datetime.today().strftime('%Y'))
-  
+
 print('\n'+'Which year would you like to retrieve exports for?')
 while True:
     try:
@@ -40,7 +40,7 @@ while True:
         else:
             break
     except ValueError:
-        print('Invalid response.')    
+        print('Invalid response.')
 
 if year == davids_law1:
     davids_law3 = int(dt.datetime.today().strftime('%m'))
@@ -64,8 +64,8 @@ while True:
             month = int(month)
             if month < davids_law3 or month > davids_law4:
                 raise ValueError
-      
-            try: 
+
+            try:
                 jobs_all = pd.read_csv(fr'L:\Commercial\Operations\Technical SEO\Automation\STAT\Data\Client Ranks\Requests\{year}_{month:02d}_bulk_ranks_all.csv')
                 print('\n'+f'Checking {year}_{month:02d}_bulk_ranks_all.csv...')
                 time.sleep(1)
