@@ -123,11 +123,10 @@ request_counter = 0 # stat requests counter
 
 not_ranking = 120
 
-# =============================================================================
+## for messing around with errors:
 # jobs_all = pd.read_csv(fr'L:\Commercial\Operations\Technical SEO\Automation\STAT\Data\Client Ranks\Requests\{year}_{month:02d}_bulk_ranks_all.csv')
 # jobs_all = jobs_all.drop(columns=['Status'])
 # jobs_all.to_csv(fr'L:\Commercial\Operations\Technical SEO\Automation\STAT\Data\Client Ranks\Requests\{year}_{month:02d}_bulk_ranks_all.csv', index=False)
-# =============================================================================
 
 # =============================================================================
 # SCRIPT
