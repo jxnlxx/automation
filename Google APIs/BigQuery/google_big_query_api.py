@@ -25,7 +25,6 @@ import gspread
 import gspread_formatting
 from gspread_dataframe import get_as_dataframe, set_with_dataframe
 
-
 from google.cloud import bigquery
 from google.oauth2 import service_account
 from oauth2client.service_account import ServiceAccountCredentials
@@ -60,30 +59,6 @@ def create_dataset(dataset_id):
     print('Created dataset {}.{}'.format(client.project, dataset.dataset_id))
     # [END bigquery_create_dataset]
     
-def create_table(dataset_id, table_id):
-
-    # [START bigquery_create_table]
-    from google.cloud import bigquery
-
-    # Construct a BigQuery client object.
-    client = bigquery.Client(credentials=credentials, project=credentials.project_id)
-
-    # TODO(developer): Set table_id to the ID of the table to create.
-    table_id = '{}.{}.{}'.format(client.project, dataset_id, table_id)
-    #table_id = 'your-project.your_dataset.your_table_name'
-    schema = [
-        bigquery.SchemaField('keyword_id', 'INTEGER', mode="REQUIRED"),
-        bigquery.SchemaField('keyword', 'STRING', mode="REQUIRED"),
-    ]
-
-    table = bigquery.Table(table_id, schema=schema)
-    table = client.create_table(table)  # Make an API request.
-    print(
-        "Created table {}.{}.{}".format(table.project, table.dataset_id, table.table_id)
-    )
-    # [END bigquery_create_table]
-
-
 def create_table(dataset_id, table_id):
 
     # [START bigquery_create_table]
@@ -172,7 +147,7 @@ job_config = bigquery.LoadJobConfig(schema=[bigquery.SchemaField("my_string", "S
 
 job = client.load_table_from_dataframe(df, project_id=client.project)
 #, job_config=job_config
-)
+
 
 # Wait for the load job to complete.
 job.result()
