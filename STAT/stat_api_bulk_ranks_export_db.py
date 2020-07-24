@@ -66,7 +66,7 @@ while True:
                 raise ValueError
 
             try:
-                jobs_all = pd.read_csv(fr'L:\Commercial\Operations\Technical SEO\Automation\STAT\SQL\Requests\{year}_{month:02d}_bulk_ranks_all.csv')
+                jobs_all = pd.read_csv(fr'L:\Commercial\Operations\Technical SEO\Automation\Data\STAT\Requests\{year}_{month:02d}_bulk_ranks_all.csv')
                 print('\n'+f'Checking {year}_{month:02d}_bulk_ranks_all.csv...')
                 time.sleep(1)
                 try: # remove any rows with 'Done' in 'Status' column
@@ -124,9 +124,9 @@ request_counter = 0 # stat requests counter
 not_ranking = 120
 
 ## for messing around with errors:
-# jobs_all = pd.read_csv(fr'L:\Commercial\Operations\Technical SEO\Automation\STAT\Data\Client Ranks\Requests\{year}_{month:02d}_bulk_ranks_all.csv')
+# jobs_all = pd.read_csv(fr'L:\Commercial\Operations\Technical SEO\Automation\Data\STAT\Requests\{year}_{month:02d}_bulk_ranks_all.csv')
 # jobs_all = jobs_all.drop(columns=['Status'])
-# jobs_all.to_csv(fr'L:\Commercial\Operations\Technical SEO\Automation\STAT\Data\Client Ranks\Requests\{year}_{month:02d}_bulk_ranks_all.csv', index=False)
+# jobs_all.to_csv(fr'L:\Commercial\Operations\Technical SEO\Automation\Data\STAT\Requests\{year}_{month:02d}_bulk_ranks_all.csv', index=False)
 
 # =============================================================================
 # SCRIPT
@@ -226,7 +226,7 @@ for index, row in jobs_head.iterrows(): # this construction allows us to go acro
 
         print('Processing complete!')
 
-        #ranks_df.to_csv(fr'L:\Commercial\Operations\Technical SEO\Automation\STAT\test.csv', index=False)
+        #ranks_df.to_csv(fr'L:\Commercial\Operations\Technical SEO\Automation\Data\STAT\test.csv', index=False)
 
 
 # =============================================================================
@@ -239,7 +239,7 @@ for index, row in jobs_head.iterrows(): # this construction allows us to go acro
         print('Done!')
 
         ranks_month_df = ranks_month_df.append(ranks_day_df)
-#        ranks_df.to_csv(fr'L:\Commercial\Operations\Technical SEO\Automation\STAT\test_edit.csv', index=False)
+#        ranks_df.to_csv(fr'L:\Commercial\Operations\Technical SEO\Automation\Data\STAT\test_edit.csv', index=False)
 
 #    these two breaks can be used together to test 1st day of month for 1 site without saving
 #        break # for testing 1st day of month (this doesn't stop it saving)
@@ -251,7 +251,7 @@ for index, row in jobs_head.iterrows(): # this construction allows us to go acro
 
     print('Saving {} to database'.format(site_url))
 
-    conn = sqlite3.connect(r'L:\Commercial\Operations\Technical SEO\Automation\Data\STAT\SQL\stat_ranks_relational.db')
+    conn = sqlite3.connect(r'L:\Commercial\Operations\Technical SEO\Automation\Data\STAT\stat_ranks_flat.db')
 
     with conn:
 
@@ -309,7 +309,7 @@ for index, row in jobs_head.iterrows(): # this construction allows us to go acro
     # Update jobs_all and save
     jobs_all.at[f'{site_url}','Status'] = 'Done'
     jobs_all = jobs_all.reset_index()  # reset index so it has a label when saved (problems using file in future otherwise...)
-    jobs_all.to_csv(fr'L:\Commercial\Operations\Technical SEO\Automation\STAT\SQL\Requests\{year}_{month:02d}_bulk_ranks_all.csv', index=False)
+    jobs_all.to_csv(fr'L:\Commercial\Operations\Technical SEO\Automation\Data\STAT\Requests\{year}_{month:02d}_bulk_ranks_all.csv', index=False)
     jobs_all = jobs_all.set_index('Url') # set index so next iteration works
     s += 1
 

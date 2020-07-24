@@ -50,8 +50,8 @@ def getWin():
         r.post(cfg.url+cfg.signin,login_data, cookies=saltycookies, headers={"Referer":cfg.url})
         
         page = r.get(cfg.url, cookies=saltycookies, headers={"Referer":cfg.url})
-        print page.content
+        print (page.content)
         win = re.findall(r'\<span class="greentext">\+\$(\d*)<', page.content)[0]
-        print win
+        print (win)
         win = int(win)
     return win
