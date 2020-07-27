@@ -43,7 +43,7 @@ while True:
         print('Invalid response.')
 
 if year == davids_law1:
-    davids_law3 = int(dt.datetime.today().strftime('%m'))
+    davids_law3 = int(dt.datetime.today().strftime('%m')) -1
     davids_law4 = 12
 elif year == davids_law2:
     davids_law3 = 1
