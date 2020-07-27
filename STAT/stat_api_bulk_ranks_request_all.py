@@ -40,7 +40,7 @@ I've included a few systems that restrict the input to prevent requesting
 reports for further back than the STAT API alows, to avoid reports from
 being generated more than once, and to stop data being overwritten.
 
-I've also included a sort of save state later in the script and, in this 
+I've also included a sort of save state later in the script and, in this
 part, there's a construction that will allow us to pick up from roughly
 where we left off if the script breaks.
 
@@ -58,9 +58,9 @@ another value.
 # =============================================================================
 
 If the input is within the date range, the script checks to see if reports
-have been requested. This is achieved by trying to load a CSV file that is 
+have been requested. This is achieved by trying to load a CSV file that is
 created by this script, based on its name. If the file does not exist, then
-we can assume that the script has not been executed for this month. The 
+we can assume that the script has not been executed for this month. The
 script then breaks the input request cycle and starts requesting reports
 for all clients from the start of the month input.
 
@@ -68,12 +68,12 @@ for all clients from the start of the month input.
 # Check report to see what the last date is
 # =============================================================================
 
-Once the script has loaded the CSV into a DataFrame, it loads the label of 
-the last column (start_date). It then tries to convert start_date to a 
+Once the script has loaded the CSV into a DataFrame, it loads the label of
+the last column (start_date). It then tries to convert start_date to a
 datetime datatype, and adds 1 to it to make it the next day. It then checks
 if this date is greater than the last date in the input month ('cutoff').
 
-If start_date > cutoff, reject input. 
+If start_date > cutoff, reject input.
 
 This prevents the script for requesting more reports if the last day of the
 requested month has already run.
@@ -89,17 +89,17 @@ excel and save it, it changes the date format.
 saved format: YYYY-MM-DD
 excel format: DD/MM/YYYY
 
-The idea here is that it will recognise either due to a nested 'try:' with 
+The idea here is that it will recognise either due to a nested 'try:' with
 appropriate breaks and exceptions.
 
 # =============================================================================
 # Catch exception if last column is not a date
 # =============================================================================
 
-When you run the stat_api_bulk_ranks_export_all.py script, it adds a column 
+When you run the stat_api_bulk_ranks_export_all.py script, it adds a column
 called 'Status', which is used as another sort of save state for that script.
 
-Here, if last column name of the loaded file is 'status', it will be of the 
+Here, if last column name of the loaded file is 'status', it will be of the
 wrong dtype to convert into a date. If this is the case, the code raises
 an exception and you'll be requested to enter another value.
 
@@ -118,7 +118,7 @@ print('\n'+'Welcome to the STAT API Bulk Ranks Request script!'
 
 davids_law1 = int(dt.datetime.today().strftime('%Y')) - 2
 davids_law2 = int(dt.datetime.today().strftime('%Y'))
-  
+
 print('\n'+'Which year would you like to run reports for?')
 while True:
     try:
@@ -128,10 +128,10 @@ while True:
         else:
             break
     except ValueError:
-        print('Invalid response.')    
+        print('Invalid response.')
 
 if year == davids_law1:
-    davids_law3 = int(dt.datetime.today().strftime('%m'))+1
+    davids_law3 = int(dt.datetime.today().strftime('%m'))
     davids_law4 = 12
 elif year == davids_law2:
     davids_law3 = 1
@@ -139,7 +139,6 @@ elif year == davids_law2:
 else:
     davids_law3 = 1
     davids_law4 = 12
-
 
 print('\n'+'Which month would you like to run reports for?')
 while True:
@@ -151,19 +150,19 @@ while True:
             days = monthrange(year,month)[1]
             cutoff = f'{year}-{month:02d}-{days:02d}'
             try: # then, check if a JobId file has already been created. if not, raise AttributeError
-                jobs_all = pd.read_csv(fr'L:\Commercial\Operations\Technical SEO\Automation\STAT\Data\Client Ranks\Historical\Requests\{year}_{month:02d}_bulk_ranks_all.csv')
+                jobs_all = pd.read_csv(fr'L:\Commercial\Operations\Technical SEO\Automation\Data\STAT\Requests\{year}_{month:02d}_bulk_ranks_all.csv')
                 start_date = jobs_all.iloc[:,-1].name
                 try: # after loading the last column's name, check if it can be converted into a date, and add 1 to it (i.e., is not 'Status' and is being processed)
-                    start_date = dt.datetime.strptime(start_date, '%Y-%m-%d') 
+                    start_date = dt.datetime.strptime(start_date, '%Y-%m-%d')
                     start_date = start_date + dt.timedelta(days=1)
                     start_date = start_date.strftime('%Y-%m-%d')
-                    if start_date > cutoff: # if the date created is greater than the last day of the month created earlier, reject 
+                    if start_date > cutoff: # if the date created is greater than the last day of the month created earlier, reject
                         raise AttributeError
                     else:
                         break
-                except ValueError: 
+                except ValueError:
                     try: # after loading the last column's name, check if it can be converted into a date, and add 1 to it (i.e., is not 'Status' and is being processed)
-                        start_date = dt.datetime.strptime(start_date, '%d/%m/%Y') 
+                        start_date = dt.datetime.strptime(start_date, '%d/%m/%Y')
                         start_date = start_date + dt.timedelta(days=1)
                         start_date = start_date.strftime('%Y-%m-%d')
                         if start_date > cutoff: # if the date created is greater than the last day of the month created earlier, reject                 except:
@@ -209,7 +208,7 @@ total_results = response.get('Response').get('totalresults')
 site_list = response.get('Response').get('Result')
 print('Site List received!')
 site_list = pd.DataFrame(site_list)
- 
+
 # Filter site_list so it shows only tracked sites with >0 keywords
 print('\n'+'Filtering site list...')
 
@@ -229,7 +228,7 @@ site_list = site_list.reset_index(drop=True)
 for i in site_list.index:
     if site_list['CreatedAt'][i] >= cutoff:
         site_list = site_list.drop(i)
-        
+
 # reset index
 site_list = site_list.reset_index(drop=True)
 
@@ -237,7 +236,7 @@ site_list = site_list.reset_index(drop=True)
 total_kws = site_list['TotalKeywords'].sum()
 
 # =============================================================================
-# Request Bulk Ranks for sites in site_list on 'report_date' 
+# Request Bulk Ranks for sites in site_list on 'report_date'
 # =============================================================================
 
 if start_date == f'{year}-{month:02d}-01':
@@ -247,21 +246,21 @@ else:
     pass
 
 for date in pd.date_range(start=start_date, end=cutoff):
-    date = date.strftime('%Y-%m-%d')   
+    date = date.strftime('%Y-%m-%d')
     print('\n'+f'Requesting bulk rank exports for {date}')
 
     # for each site_id in site_list, call API and request reports for date
-    n = 1 # counter for 'total_sites' 
+    n = 1 # counter for 'total_sites'
     job = pd.DataFrame(columns=['Url', f'{date}'])
     for i in site_list.index:
         if site_list['CreatedAt'][i] <= date:
-            # pull Id from client_list and create url 
+            # pull Id from client_list and create url
             site_url = site_list['Url'][i]
             site_id = site_list['Id'][i]
             try:
                 print(f'{n:03d} Requesting {date} rank report for {site_url}')
                 url = f'{stat_base_url}/bulk/ranks?date={date}&site_id={site_id}&engines=google&format=json'
-            
+
                 # request bulk ranks from url, adding job_id to list
                 response = requests.get(url)
                 request_counter += 1
@@ -283,11 +282,11 @@ for date in pd.date_range(start=start_date, end=cutoff):
     print('\n'+f'Updating {year}_{month:02d}_bulk_ranks_all.csv')
     jobs_all = jobs_all.reset_index() # issue with concat removing index name, hence this and next line...
     jobs_all = jobs_all.rename(columns={'index':'Url'}) # renames new index to 'Url'
-    jobs_all.to_csv(fr'L:\Commercial\Operations\Technical SEO\Automation\STAT\Data\Client Ranks\Historical\Requests\{year}_{month:02d}_bulk_ranks_all.csv',index=False)
+    jobs_all.to_csv(fr'L:\Commercial\Operations\Technical SEO\Automation\Data\STAT\Requests\{year}_{month:02d}_bulk_ranks_all.csv',index=False)
     jobs_all = jobs_all.set_index('Url')
     print('Done!')
     time.sleep(1)
-    
+
 # =============================================================================
 # END
 # =============================================================================
