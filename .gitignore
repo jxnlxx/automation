@@ -1,14 +1,14 @@
 Google APIs/authorizedcreds.dat
 *.accdb
-Technical Healthchecks\__pycache__
-Google APIs\How to run python scripts.docx
-Sam's Database\*.db
-Sam's Database\*.pyc
+Technical Healthchecks/__pycache__
+Google APIs/How to run python scripts.docx
+Sam's Database/*.db
+Sam's Database/*.pyc
 test.db
 playground.ipynb
 env
-RSS reader\csv
+RSS reader/csv
 New Microsoft Access Database.accdb
-TF-IDF\csv
-TF-IDF\input
-TF-IDF\output
+TF-IDF/csv
+TF-IDF/input
+TF-IDF/output
