@@ -291,7 +291,7 @@ for i in hc_list.index:
         brand_colour = '#8dc63f' # iPro
         brand_spark = '#066bb1' # iPro
 
-    text = '#636363' # Generic
+    text = '#636363' # this is used for text and cell borders
 
     # table Formatting
     client_name = wb.add_format({'bold':True, 'indent':0, 'font_color':text, 'font_size':20, 'align':'center', 'valign':'vcenter', 'rotation':0})
