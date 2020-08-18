@@ -187,7 +187,7 @@ for index, row in jobs_head.iterrows(): # this construction allows us to go acro
             google_base_rank_df = google_rank_df # this just duplicates the filtered keywords_list dataframe 
             google_ranking_url_df = google_rank_df # as above
             print(f'No historical data found; loaded {save_name}_keywords_list.csv instead.')
-        
+
         except FileNotFoundError:
             # if there's no kw_list, add to new_sites list to be printed at end of script
             new_sites.append(site_url)
@@ -246,9 +246,9 @@ for index, row in jobs_head.iterrows(): # this construction allows us to go acro
             'google_ranking_url' : [i['Ranking']['Google']['Url'] for i in kw_list],
             'keyword_tags': [i['KeywordTags'] for i in kw_list],
             })
-        
+
         print('Processing complete!')
-        
+
 # =============================================================================
 
         print(f'Replacing not ranking with {not_ranking}...') # configured at the start under SETTINGS
@@ -261,15 +261,15 @@ for index, row in jobs_head.iterrows(): # this construction allows us to go acro
 
         # replace 'N/A' with '' in ['google_rank','google_base_rank','google_ranking_url'] (N/A keywords were not being tracked on 'date')
         ranks_df[['google_rank','google_base_rank','google_ranking_url']] = ranks_df[['google_rank','google_base_rank','google_ranking_url']].replace(to_replace=['N/A'], value='')
-        
+
         print('Done!')
 
 # =============================================================================
 
-        print('Formatting results...')  
+        print('Formatting results...')
 
         # convert 'keyword_id' col into dtype 'str' so merge works
-        ranks_df.iloc[:, :5] = ranks_df.iloc[:, :5].astype(str) 
+        ranks_df.iloc[:, :5] = ranks_df.iloc[:, :5].astype(str)
 
         # split out ranks_df into different DataFrames such that each contain
         # only one of google_rank, google_base_rank, and google_ranking_url
@@ -277,17 +277,17 @@ for index, row in jobs_head.iterrows(): # this construction allows us to go acro
         gbr_df = ranks_df.drop(columns=['google_rank','google_ranking_url'])
         gru_df = ranks_df.drop(columns=['google_rank','google_base_rank'])
 
-        # rename columns with 'date'         
+        # rename columns with 'date'
         gr_df = gr_df.rename(columns={'google_rank' : f'{date}'})
         gbr_df = gbr_df.rename(columns={'google_base_rank' : f'{date}'})
         gru_df = gru_df.rename(columns={'google_ranking_url' : f'{date}'})
-    
+
         print('Done!')
 
 # =============================================================================
-         
+
         print('Updating existing keywords...')
-        
+
         # create new DataFrame containing only 'keyword_id' and 'date'
         # this prevents duplication of 'keyword', 'device', 'market', regional_search_volume'
         gr_df2 = gr_df[['keyword_id', f'{date}']]
@@ -295,12 +295,12 @@ for index, row in jobs_head.iterrows(): # this construction allows us to go acro
         gru_df2 = gru_df[['keyword_id', f'{date}']]
 
         # add new data to historical data (uses left table to include only historical data)
-        google_rank_df = pd.merge(google_rank_df, gr_df2, how='left', on='keyword_id')  
-        google_base_rank_df = pd.merge(google_base_rank_df, gbr_df2, how='left', on='keyword_id')  
-        google_ranking_url_df = pd.merge(google_ranking_url_df, gru_df2, how='left', on='keyword_id')  
+        google_rank_df = pd.merge(google_rank_df, gr_df2, how='left', on='keyword_id')
+        google_base_rank_df = pd.merge(google_base_rank_df, gbr_df2, how='left', on='keyword_id')
+        google_ranking_url_df = pd.merge(google_ranking_url_df, gru_df2, how='left', on='keyword_id')
         print('Done!')
-        
-# =============================================================================        
+
+# =============================================================================
 
         print('Checking for new keywords...')
 
@@ -313,14 +313,14 @@ for index, row in jobs_head.iterrows(): # this construction allows us to go acro
         cond = gbr_df['keyword_id'].isin(google_base_rank_df['keyword_id'])
         cond = gbr_df.drop(gbr_df[cond].index)
         google_base_rank_df = google_base_rank_df.append(cond, sort=False)
-        
+
         cond = gru_df['keyword_id'].isin(google_ranking_url_df['keyword_id'])
         cond = gru_df.drop(gru_df[cond].index)
         google_ranking_url_df = google_ranking_url_df.append(cond, sort=False)
 
         print(len(cond),'new keywords found!')
 
-#    these two breaks can be used together to test 1st day of month for 1 site without saving 
+#    these two breaks can be used together to test 1st day of month for 1 site without saving
 #        break # for testing 1st day of month (this doesn't stop it saving)
 #    break # for testing 1 client in list WITHOUT SAVING
 
@@ -341,7 +341,7 @@ for index, row in jobs_head.iterrows(): # this construction allows us to go acro
     print(f'Saving {save_name}_google_ranking_url.csv')
     google_ranking_url_df.to_csv(fr'L:\Commercial\Operations\Technical SEO\Automation\STAT\Data\Client Ranks\Google Ranking URL\{save_name}_google_ranking_url.csv', index=False)
     print('Done!')
-    
+
     print(f'{site_url} complete! ({s} of {total_sites})')
 
     s += 1
@@ -361,9 +361,9 @@ for index, row in jobs_head.iterrows(): # this construction allows us to go acro
     jobs_all = jobs_all.set_index('Url') # set index so next iteration works
 
     print('\n'+f'Done!')
-    
+
 #    break # for testing one client in script with saving AFTER updating bulk_ranks_all
-    
+
 # =============================================================================
 # END TIMER
 # =============================================================================

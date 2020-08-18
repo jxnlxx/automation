@@ -16,8 +16,6 @@ from calendar import monthrange
 from pandas.io.json import json_normalize
 from getstat import stat_subdomain, stat_key, stat_base_url                     # saved locally in C:\Users\USERNAME\AppData\Local\Programs\Python\Python37-32\Lib
 
-
-
 print('\n'+'Welcome to the STAT API Bulk Ranks Request script!'
       '\n'+'This script requests daily ranks for all clients in'
       '\n'+'a single, specified month.'

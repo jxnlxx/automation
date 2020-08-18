@@ -1,16 +1,9 @@
-# %%
-response
-# %%
-response
-# %%
 # -*- coding: utf-8 -*-
 """
 Created on Wed Jun 17 07:42:53 2020
 
 @author: JLee35
 """
-#%%
-
 import datetime
 import requests
 import pandas as pd
