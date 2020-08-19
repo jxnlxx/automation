@@ -26,7 +26,7 @@ from googleapiclient import discovery
 start_time = dt.datetime.now().replace(microsecond=0)
 
 # =============================================================================
-# create dates 
+# create dates
 # =============================================================================
 
 report_month = start_time.replace(day=1)
@@ -71,7 +71,7 @@ gspread_id = '1H3qkPyGolEbq3pMpHYEWEb0kZkudy6mnbJT90L2kl1k'
 gsheet_name = 'Tech Healthchecks'
 
 scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
-google_auth = r'C:\Users\JLee35\OneDrive - Dentsu Aegis Network\CURRENT PROJECTS\Python\APIs\keys\iprospectseonorth\google_auth.json'
+google_auth = r'C:\Users\JLee35\OneDrive - Dentsu Aegis Network\PROJECTS\Python\APIs\keys\iprospectseonorth\google_auth.json'
 creds = ServiceAccountCredentials.from_json_keyfile_name(google_auth, scope)
 client = gspread.authorize(creds)
 
@@ -86,7 +86,7 @@ hc_list = get_as_dataframe(sheet.worksheet(gsheet_name), parse_dates=True)# usec
 hc_list = hc_list.dropna(axis=1, how='all')
 hc_list = hc_list.dropna(axis=0, how='all')
 print('Done!')
-    
+
 # =============================================================================
 # log in to deepcrawl
 # =============================================================================
@@ -102,7 +102,7 @@ print('Done!')
 # =============================================================================
 # update healthcheck templates
 # =============================================================================
-
+skipped_clients = list()
 #iterate through list to grab data, ping server to get data, then update reports
 for i in hc_list.index:
     n = 0
@@ -114,7 +114,7 @@ for i in hc_list.index:
     else:
         print(f'\nInitialising {client}')
         pass
-    
+
     brand = hc_list['Brand'][i]
     url = f'https://api.deepcrawl.com/accounts/117/projects/{project_id}'
     response = requests.get(url, headers=headers)
@@ -125,7 +125,6 @@ for i in hc_list.index:
         continue
     else:
         response_json = response.json()
-    
 
     # if no last crawl, skip client
     site_primary = response_json.get('site_primary')
@@ -150,43 +149,43 @@ for i in hc_list.index:
             print('Success!\n')
             break
 
-    crawl_json = crawl.json()                                                           # convert the JSON response into something pythonic
-    df = df.append(crawl_json, ignore_index = True)                                   # fill the DataFrame with data from the response
-    n += 1                                                                              # add 1 to 'n'
-    print(n, url)                                                                     # print 'n, url' so the script shows it's not idle
-    while url != 'https://api.deepcrawl.com' + crawl.links['last']['url']:          # check if the URL is the same as the last page in the response header
-        url = 'https://api.deepcrawl.com' + crawl.links['next']['url']               # if not, change the url to the 'next' page in the pagination
-        crawl = requests.get(url, headers=headers)                                    # ping the new url to get the data
-        crawl_json = crawl.json()                                                       # convert the JSON response into something pythonic
-        df = df.append(crawl_json, ignore_index = True)                               # append the data to the DataFrame
-        n += 1                                                                          # add 1 to 'n'
-        print(n, url)                                                                 # print 'n, url' so the script shows it's not idle
-            
-    # remove duplicates from 'report_template' column
+    crawl_json = crawl.json() # convert the JSON response into something pythonic
+    df = df.append(crawl_json, ignore_index = True) # fill the DataFrame with data from the response
+    n += 1 # add 1 to 'n'
+    print(n, url) # print 'n, url' so the script shows it's not idle
+    while url != 'https://api.deepcrawl.com' + crawl.links['last']['url']: # check if the URL is the same as the last page in the response header
+        url = 'https://api.deepcrawl.com' + crawl.links['next']['url'] # if not, change the url to the 'next' page in the pagination
+        crawl = requests.get(url, headers=headers) # ping the new url to get the data
+        crawl_json = crawl.json() # convert the JSON response into something pythonic
+        df = df.append(crawl_json, ignore_index = True) # append the data to the DataFrame
+        n += 1 # add 1 to 'n'
+        print(n, url) # print 'n, url' so the script shows it's not idle
 
-    df = df.drop_duplicates(subset = 'report_template')                              # de-dupe the sreadsheet based on the 'report template' column
-
-    # filter columns for 'report_template' and 'basic_total'
-
-    df = df[['report_template', 'basic_total']]                                       # remove all columns from sheet except 'report_template' and 'basic_total' columns
-
-    # open template
+    # try removing duplicates from 'report_template' col, filter for 'report_template' and 'basic_total' cols
+    try:
+        df = df.drop_duplicates(subset = 'report_template')
+        df = df[['report_template', 'basic_total']]
+    # if 'KeyError', add client name to list for mesaging at end, then skip client
+    except KeyError:
+        skipped_clients = skipped_clients + [f'{client}']
+        continue
 
     # see if client's template exists, and if not, open blank template
-    
+
     try:
         df_data = pd.read_excel(fr'L:\Commercial\Operations\Technical SEO\Automation\Data\Technical Healthchecks\Crawl Data\{client} - Tech Healthcheck Template.xlsx', sheet_name='Data')
         df_healthcheck = pd.read_excel(fr'L:\Commercial\Operations\Technical SEO\Automation\Data\Technical Healthchecks\Crawl Data\{client} - Tech Healthcheck Template.xlsx', sheet_name='Healthcheck')
 
     except FileNotFoundError:
         df_data = pd.read_excel(fr'L:\Commercial\Operations\Technical SEO\Automation\Data\Technical Healthchecks\Blank Tech Healthcheck Template.xlsx', sheet_name='Data', read_only=True)
+        df_healthcheck = pd.read_excel(fr'L:\Commercial\Operations\Technical SEO\Automation\Data\Technical Healthchecks\Blank Tech Healthcheck Template.xlsx', sheet_name='Healthcheck', read_only=True)
 
     # update 'data' tab
-       
+
     df_data = df_data.merge(df, on= 'report_template', how='left')
     df_data = df_data.rename(columns={'basic_total':report_month})
     df_data = df_data.fillna(0)
-    
+
     print('\n- Data Tab Updated')
 
 
@@ -195,9 +194,9 @@ for i in hc_list.index:
     sumif_data = df_data[['Issue', report_month]]
     sumif_data = sumif_data.groupby('Issue')[report_month].sum()
     df_healthcheck = df_healthcheck.merge(sumif_data , on='Issue', how='left')
-    
+
     print('- Healthcheck Tab Updated')
-    
+
     # save template
 
     writer = pd.ExcelWriter(fr'L:\Commercial\Operations\Technical SEO\Automation\Data\Technical Healthchecks\Crawl Data\{client} - Tech Healthcheck Template.xlsx', engine='xlsxwriter')
@@ -209,7 +208,7 @@ for i in hc_list.index:
     data_ws.set_zoom(85)
     healthcheck_ws.set_zoom(85)
     writer.save()
-    
+
     print(f'\n{client} Template Saved'
            '\n'+'*   *   *   *   *   *   *   *   *   *')
 
@@ -218,17 +217,13 @@ print('\n'+'Healthcheck Templates Updated!')
 # time script
 mid_time = dt.datetime.now().replace(microsecond=0)
 
-
-# load healthcheck list
-#hc_list = pd.read_excel(r'L:\Commercial\Operations\Technical SEO\Technical Healthchecks\Healthcheck List.xlsx', sheet_name = 'Healthcheck List')
-
 # iterate through rows of healthcheck list and produce one healthcheck per client
 for i in hc_list.index:
     client = hc_list['Client'][i]
     project_id = hc_list['deepcrawl_project_id'][i]
     brand = hc_list['Brand'][i]
-        
-    # load workbook as openpyxl and convert to dataframe 
+
+    # load workbook as openpyxl and convert to dataframe
     # (gets around an issue where pandas wouldn't load the workbook properly)
     print(f'\nOpening {client} Healthcheck')
     try:
@@ -240,7 +235,7 @@ for i in hc_list.index:
         print(f'Starting to Write {client} Healthcheck')
     except FileNotFoundError:
         print(f'{client} Healthcheck Template not found')
-        continue    
+        continue
     df_rows, df_cols = df.shape
     xl_rows = df_rows+4
     df = df.fillna('')
@@ -249,57 +244,30 @@ for i in hc_list.index:
 
     wb = xl.Workbook(fr'L:\Commercial\Operations\Technical SEO\Technical Healthchecks\01. Healthchecks\{client} - Tech Healthcheck.xlsx')
     ws = wb.add_worksheet('Healthcheck')
-    
-    # column widths
 
-    ws.set_column(0, 0, 5)
-    ws.set_column(1, 1, 45)
-    ws.set_column(2, 2, 90)
-    ws.set_column(3, 3, 60)
-
-    # brand colours
-
-    ipro_colour = '#8dc63f'
-    ipro_spark = '#066bb1'
-
-    carat_colour = '#00beff'
-    carat_spark = '#4ee6C6'
-
-    vizeum_colour = '#fac600'
-    vizeum_spark = '#f6861f'
-
-    text = '#636363'
-
-    # additional formatting
-
-    ws.freeze_panes(6, 2)                                                      # Freeze first 6 rows and first 2 columns.
-    ws.set_zoom(70)                                                            # Set zoom to 70%
-    ws.hide_gridlines(2)                                                       # Hide Gridlines
-    #ws.hide_row_col_headers()                                                  # hide headers - not great for unhiding hiddent tabs
-    
     #  CELL FORMATTING
 
     # heading formatting (conditional on brand client is with)
 
     if brand == 'Carat':
-        client_name = wb.add_format({'bold':True, 'indent':0, 'font_color':text, 'font_size':20, 'align':'center', 'valign':'vcenter', 'rotation':0})
-        l_head = wb.add_format({'bold':False, 'indent':0, 'bg_color':carat_colour, 'font_color':carat_colour, 'font_size':12, 'align':'center', 'valign':'vcenter', 'rotation':0, 'border_color':text, 'top':1, 'bottom':1, 'left':1, 'right':0})
-        c_head = wb.add_format({'bold':False, 'indent':0, 'bg_color':carat_colour, 'font_color':carat_colour, 'font_size':12, 'align':'center', 'valign':'vcenter', 'rotation':0, 'border_color':text, 'top':1, 'bottom':1, 'left':0, 'right':0})
-        r_head = wb.add_format({'bold':False, 'indent':0, 'bg_color':carat_colour, 'font_color':'#ffffff', 'font_size':12, 'align':'center', 'valign':'vcenter', 'rotation':90, 'border_color':text, 'top':1, 'bottom':1, 'left':1, 'right':1, 'num_format':'mmm-yy'})
+        brand_colour = '#00beff' # Carat
+        brand_spark = '#4ee6C6' # Carat
 
     if brand == 'Vizeum':
-        client_name = wb.add_format({'bold':True, 'indent':0, 'font_color':text, 'font_size':20, 'align':'center', 'valign':'vcenter', 'rotation':0})
-        l_head = wb.add_format({'bold':False, 'indent':0, 'bg_color':vizeum_colour, 'font_color':vizeum_colour, 'font_size':12, 'align':'center', 'valign':'vcenter', 'rotation':0, 'border_color':text, 'top':1, 'bottom':1, 'left':1, 'right':0})
-        c_head = wb.add_format({'bold':False, 'indent':0, 'bg_color':vizeum_colour, 'font_color':vizeum_colour, 'font_size':12, 'align':'center', 'valign':'vcenter', 'rotation':0, 'border_color':text, 'top':1, 'bottom':1, 'left':0, 'right':0})
-        r_head = wb.add_format({'bold':False, 'indent':0, 'bg_color':vizeum_colour, 'font_color':'#ffffff', 'font_size':12, 'align':'center', 'valign':'vcenter', 'rotation':90, 'border_color':text, 'top':1, 'bottom':1, 'left':1, 'right':1, 'num_format':'mmm-yy'})
+        brand_colour = '#fac600' # Vizeum
+        brand_spark = '#f6861f' # Vizeum
 
     if brand not in ['Carat', 'Vizeum']:
-        client_name = wb.add_format({'bold':True, 'indent':0, 'font_color':text, 'font_size':20, 'align':'center', 'valign':'vcenter', 'rotation':0})
-        l_head = wb.add_format({'bold':False, 'indent':0, 'bg_color':ipro_colour, 'font_color':ipro_colour, 'font_size':12, 'align':'center', 'valign':'vcenter', 'rotation':0, 'border_color':text, 'top':1, 'bottom':1, 'left':1, 'right':0})
-        c_head = wb.add_format({'bold':False, 'indent':0, 'bg_color':ipro_colour, 'font_color':ipro_colour, 'font_size':12, 'align':'center', 'valign':'vcenter', 'rotation':0, 'border_color':text, 'top':1, 'bottom':1, 'left':0, 'right':0})
-        r_head = wb.add_format({'bold':False, 'indent':0, 'bg_color':ipro_colour, 'font_color':'#ffffff', 'font_size':12, 'align':'center', 'valign':'vcenter', 'rotation':90, 'border_color':text, 'top':1, 'bottom':1, 'left':1, 'right':1, 'num_format':'mmm-yy'})
+        brand_colour = '#8dc63f' # iPro
+        brand_spark = '#066bb1' # iPro
+
+    text = '#636363' # Generic
 
     # table Formatting
+    client_name = wb.add_format({'bold':True, 'indent':0, 'font_color':text, 'font_size':20, 'align':'center', 'valign':'vcenter', 'rotation':0})
+    l_head = wb.add_format({'bold':False, 'indent':0, 'bg_color':brand_colour, 'font_color':brand_colour, 'font_size':12, 'align':'center', 'valign':'vcenter', 'rotation':0, 'border_color':text, 'top':1, 'bottom':1, 'left':1, 'right':0})
+    c_head = wb.add_format({'bold':False, 'indent':0, 'bg_color':brand_colour, 'font_color':brand_colour, 'font_size':12, 'align':'center', 'valign':'vcenter', 'rotation':0, 'border_color':text, 'top':1, 'bottom':1, 'left':0, 'right':0})
+    r_head = wb.add_format({'bold':False, 'indent':0, 'bg_color':brand_colour, 'font_color':'#ffffff', 'font_size':12, 'align':'center', 'valign':'vcenter', 'rotation':90, 'border_color':text, 'top':1, 'bottom':1, 'left':1, 'right':1, 'num_format':'mmm-yy'})
 
     sub1 = wb.add_format({'bold':True, 'indent':1, 'font_color':text, 'font_size':18, 'align':'left', 'valign':'vcenter', 'rotation':0, 'border_color':text, 'top':1, 'bottom':1, 'left':0, 'right':0})
     sub2 = wb.add_format({'bold':True, 'indent':1, 'font_color':'#ffffff', 'font_size':18, 'align':'left', 'valign':'vcenter', 'rotation':0, 'border_color':text, 'top':1, 'bottom':1, 'left':0, 'right':0})
@@ -313,13 +281,13 @@ for i in hc_list.index:
     xl_head = [5]
     xl_sub = [6, 14, 21, 28, 37, 42, 46]
     xl_data = [7, 8, 9, 10, 11, 12, 13, 15, 16, 17, 18, 19, 20, 22, 23, 24, 25, 26, 27, 29, 30, 31, 32, 33, 34, 35, 36, 38, 39, 40, 41, 43, 44, 45, 47, 48, 49, 50, 51, 52, 53]
-    
+
     # format + fill table header
-    
+
     ws.set_row(2, 30)
     ws.write(2, 2, f'{client} Healthcheck', client_name)
     #print('1')
-    
+
     # format + fill table data
     x = 5
     n = 0 #for df.loc[n]
@@ -348,7 +316,7 @@ for i in hc_list.index:
                     y += 1
                     x += 1
                     n += 1
-        if x in xl_sub: 
+        if x in xl_sub:
             #print('4')
             y = 1
             df_list = list(df.iloc[n])
@@ -387,57 +355,66 @@ for i in hc_list.index:
                     ws.write(x, y, df_list[y-1], data)
                     y += 1
                     x += 1
-                    n += 1        
+                    n += 1
 
     # Add sparklines
 
     x, y = 7, 3
+    while x <= xl_rows:
+        sparkline = xl_range(x, 4, x, df_cols)
+        ws.add_sparkline(x, y, {'range': sparkline, 'series_color': brand_spark, 'markers':True})
+        x += 1
+    ws.set_tab_color(brand_colour)
 
+    # insert brand logo
     if brand == 'Carat':
-        while x <= xl_rows:
-            sparkline = xl_range(x, 4, x, df_cols)
-            ws.add_sparkline(x, y, {'range': sparkline, 'series_color': carat_spark, 'markers':True})
-            x += 1
         ws.insert_image('B2', fr'L:\Commercial\Operations\Technical SEO\Automation\Data\Technical Healthchecks\Branding\Logos\Carat Logo.png', {'y_offset':5, 'x_scale':0.13, 'y_scale': 0.13})
-        ws.set_tab_color(carat_colour)
 
     if brand == 'Vizeum':
-        while x <= xl_rows:
-            sparkline = xl_range(x, 4, x, df_cols)
-            ws.add_sparkline(x, y, {'range': sparkline, 'series_color': vizeum_spark, 'markers':True})
-            x += 1
         ws.insert_image('B1', fr'L:\Commercial\Operations\Technical SEO\Automation\Data\Technical Healthchecks\Branding\Logos\Vizeum Logo.png', {'x_offset':20, 'y_offset':10, 'x_scale':0.4, 'y_scale': 0.4})
-        ws.set_tab_color(vizeum_colour)
-    if brand not in ['Carat', 'Vizeum']:
-        while x <= xl_rows:
-            sparkline = xl_range(x, 4, x, df_cols)
-            ws.add_sparkline(x, y, {'range': sparkline, 'series_color': ipro_spark, 'markers':True})
-            x += 1
-        ws.insert_image('B2', fr'L:\Commercial\Operations\Technical SEO\Automation\Data\Technical Healthchecks\Branding\Logos\iPro Logo.png', {'x_scale':0.22, 'y_scale': 0.22})
-        ws.set_tab_color(ipro_colour)   
 
-    # hide columns
+    if brand not in ['Carat', 'Vizeum']:
+        ws.insert_image('B2', fr'L:\Commercial\Operations\Technical SEO\Automation\Data\Technical Healthchecks\Branding\Logos\iPro Logo.png', {'x_scale':0.22, 'y_scale': 0.22})
+
+    # ADDITIONAL FORMATTING
+
+    # column widths
+    ws.set_column(0, 0, 5)
+    ws.set_column(1, 1, 45)
+    ws.set_column(2, 2, 90)
+    ws.set_column(3, 3, 60)
+
+    ws.freeze_panes(6, 2)   # Freeze first 6 rows and first 2 columns
+    ws.set_zoom(70) # Set zoom to 70%
+    ws.hide_gridlines(2) # Hide Gridlines
+    #ws.hide_row_col_headers() # hide headers - not great for unhiding hiddent tabs
 
     if df_cols > 9:
-        ws.set_column(4, df_cols-6, 0)
-     
+        ws.set_column(4, df_cols-6, 0) # hide columns so only 6 months of data is visible
+
     wb.close()
     print(f'{client} Healthcheck Done'+'\n\n'
             '*   *   *   *   *   *   *   *   *   *')
 
-
 print('\n'+'DURN!')
+
+print('\n'+'Checking for skipped Clients:')
+time.sleep(1)
+
+if len(skipped_clients) > 0:
+    for c in skipped_clients:
+        print(c)
+else:
+    print('\n'+'All clients in Healthcheck List sheet were completed successfully!')
 
 # =============================================================================
 # END
 # =============================================================================
 
 end_time = dt.datetime.now().replace(microsecond=0)
-
 dc_time = mid_time - start_time
 xl_time = end_time - mid_time
 total_time = end_time - start_time
-
 
 print(f'Time taken to get data from DeepCrawl: {dc_time}'+'\n'
       f'Time taken to generate Excel healthchecks: {xl_time}'+'\n'
