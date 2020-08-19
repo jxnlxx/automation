@@ -1,4 +1,4 @@
-# stat_ivy_monthly_report.py
+# stat_ivy_request_all.py
 #
 
 #%%
@@ -65,7 +65,7 @@ for date in pd.date_range(start=start_date, end=cutoff):
                 continue
         else:
             continue
-    #jobs = jobs.groupby('Url', as_index=True).aggregate(lambda x : list(x)) # as_index defaults to 'True', it's there just for future reference!
+    jobs = jobs.groupby('Url', as_index=True).aggregate(lambda x : list(x)) # as_index defaults to 'True', it's there just for future reference!
     all_jobs = all_jobs.merge(jobs,how='left', on='Url')
     print('\n'+f'Bulk rank requests for {date} complete!')
     n = 1 # reset counter for 'total_sites'
