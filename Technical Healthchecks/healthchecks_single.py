@@ -5,6 +5,9 @@ Created on Fri Feb  7 12:16:23 2020
 @author: Jon Lee
 """
 
+
+#%% deepcrawl_single
+
 import os
 import time
 import shutil
@@ -27,26 +30,13 @@ import math
 # time script
 start_time = dt.datetime.now().replace(microsecond=0)
 
-# =============================================================================
 # create dates
-# =============================================================================
-
 report_month = start_time.replace(day=1)
 backup_month = report_month - dt.timedelta(days=1)
 report_month = report_month.strftime('%b-%y')
 backup_month = backup_month.strftime('%Y-%m')
 
-# =============================================================================
-# backup healthcheck templayes if no backup exists
-# =============================================================================
-
-
-# =============================================================================
 # load google sheets tech seo projects list
-# =============================================================================
-
-# load healthcheck list
-
 gspread_id = '1H3qkPyGolEbq3pMpHYEWEb0kZkudy6mnbJT90L2kl1k'
 gsheet_name = 'Tech Healthchecks'
 
@@ -65,11 +55,15 @@ hc_list = get_as_dataframe(sheet.worksheet(gsheet_name), parse_dates=True)# usec
 # get_as_dataframe automatically loads 25 cols x 1k rows, so we trim it:
 hc_list = hc_list.dropna(axis=1, how='all')
 hc_list = hc_list.dropna(axis=0, how='all')
+
+# sort dataframe by Client alphabetically, ignoring case
+hc_list = hc_list.iloc[hc_list.Client.str.lower().argsort()]
+hc_list = hc_list.reset_index(drop=True)
+
 print('Done!')
 
-# =============================================================================
 # create pop up to select clients
-# =============================================================================
+
 
 import tkinter as tk
 import math
@@ -116,13 +110,11 @@ button.grid(row=rows, column=2, pady=20)
 
 root.mainloop()
 
-#print(projects_list)
 
-# =============================================================================
-# log in to deepcrawl
-# =============================================================================
+
 
 # POST request to api.deepcrawl.com/sessions with the API key and value
+
 print('Logging into DeepCrawl...')
 response = requests.post(dc_url, auth=(dc_key, dc_value), verify=True) # auth with deepcrawl
 response = response.json()
@@ -130,9 +122,9 @@ token = response['token'] # gets the token from the json response
 headers = {'X-Auth-Token':token} # create variable for adding into header of requests
 print('Done!')
 
-# =============================================================================
 # update healthcheck templates
-# =============================================================================
+
+skipped_clients = []
 
 hc_list = hc_list[hc_list['Client'].isin(selection)]
 
@@ -194,6 +186,7 @@ for i in hc_list.index:
         print(n, url) # print 'n, url' so the script shows it's not idle
 
     # try removing duplicates from 'report_template' col, filter for 'report_template' and 'basic_total' cols
+
     try:
         df = df.drop_duplicates(subset = 'report_template')
         df = df[['report_template', 'basic_total']]
@@ -223,6 +216,7 @@ for i in hc_list.index:
     sumif_data = sumif_data.groupby('Issue')[report_month].sum()
     df_healthcheck = df_healthcheck.merge(sumif_data , on='Issue', how='left')
 
+
     print('- Healthcheck Tab Updated')
 
     # save template
@@ -238,7 +232,7 @@ for i in hc_list.index:
     writer.save()
 
     print(f'\n{client} Template Saved'
-           '\n'+'*   *   *   *   *   *   *   *   *   *')
+           '\n\n'+'*   *   *   *   *   *   *   *   *   *')
 
     print('\n'+'Healthcheck Template(s) Updated!')
 
@@ -449,4 +443,7 @@ total_time = end_time - start_time
 print(f'Time taken to get data from DeepCrawl: {dc_time}'+'\n'
       f'Time taken to generate Excel healthchecks: {xl_time}'+'\n'
       f'Total time taken: {total_time}')
+
+
+# %%
 
