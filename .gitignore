@@ -14,3 +14,4 @@ TF-IDF/input
 TF-IDF/output
 TF-IDF/output_concat
 *.xlsx
+*.csv
