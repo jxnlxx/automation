@@ -1,3 +1,4 @@
+#%% healthchecks_full.py
 # -*- coding: utf-8 -*-
 """
 Created on Fri Feb  7 12:16:23 2020
@@ -420,3 +421,5 @@ print(f'Time taken to get data from DeepCrawl: {dc_time}'+'\n'
       f'Time taken to generate Excel healthchecks: {xl_time}'+'\n'
       f'Total time taken: {total_time}')
 
+
+# %%

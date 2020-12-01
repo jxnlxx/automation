@@ -16,11 +16,12 @@ import xlsxwriter as xl
 from xlsxwriter.utility import xl_range
 
 
+
 # time script
 start_time = datetime.datetime.now().replace(microsecond=0)
 
 # =============================================================================
-# create dates 
+# create dates
 # =============================================================================
 
 report_month = datetime.datetime.now()
@@ -32,25 +33,20 @@ report_month = report_month.strftime( '%b-%y' )
 # log in to deepcrawl
 # =============================================================================
 
-
 url = 'https://api.deepcrawl.com/sessions'
 key = '1598'
 value = 'FPXwkQUsX-qqqnhB_HLbHzO9brrycphhHKQwBwHOneNTP5Ur-5Dx_k2y_E57__4gWSGj810c'
 
 # POST request to api.deepcrawl.com/sessions with the API key and value
-
 response = requests.post( url, auth=( key, value ), verify=True )
 
 # convert JSON string into dict
-
 response_json = response.json()
 
 # assign the 'token' in the dict to token variable
-
 token = response_json[ 'token' ]
 
 # create variable for adding into header of requests
-
 headers = { 'X-Auth-Token' : token }
 
 # print 'token'
@@ -62,14 +58,10 @@ print(token)
 # update healthcheck templates
 # =============================================================================
 '''
-
-
 # load healthcheck list
-
 hc_list = pd.read_excel( r'L:\Commercial\Operations\Technical SEO\Technical Healthchecks\Healthcheck List.xlsx', sheet_name = 'Healthcheck List' )
 
 #iterate through list to grab data, ping server to get data, then update reports
-
 for i in hc_list.index:
     n = 0
     client = hc_list['Client'][i]
@@ -80,7 +72,7 @@ for i in hc_list.index:
     else:
         print( f'\nInitialising {client}' )
         pass
-    
+
     brand = hc_list[ 'Brand' ][i]
     url = f'https://api.deepcrawl.com/accounts/117/projects/{project_id}'
     response = requests.get( url, headers=headers )
@@ -92,7 +84,7 @@ for i in hc_list.index:
         continue
     else:
         response_json = response.json()
-    
+
 
 # if no last crawl, skip client
     site_primary = response_json.get( 'site_primary' )
@@ -129,7 +121,7 @@ for i in hc_list.index:
         df = df.append( crawl_json, ignore_index = True )                               # append the data to the DataFrame
         n += 1                                                                          # add 1 to 'n'
         print( n, url )                                                                 # print 'n, url' so the script shows it's not idle
-            
+
 # remove duplicates from 'report_template' column
 
     df = df.drop_duplicates( subset = 'report_template'  )                              # de-dupe the sreadsheet based on the 'report template' column
@@ -141,7 +133,7 @@ for i in hc_list.index:
 # open template
 
 # see if client's template exists, and if not, open blank template
-    
+
     try:
         df_data = pd.read_excel( fr'L:\Commercial\Operations\Technical SEO\Automation\Technical Healthchecks\Data\Crawl Data\{client} - Tech Healthcheck Template.xlsx', sheet_name = 'Data' )
         df_healthcheck = pd.read_excel( fr'L:\Commercial\Operations\Technical SEO\Automation\Technical Healthchecks\Data\Crawl Data\{client} - Tech Healthcheck Template.xlsx', sheet_name = 'Healthcheck' )
@@ -150,11 +142,11 @@ for i in hc_list.index:
         df_data = pd.read_excel( fr'L:\Commercial\Operations\Technical SEO\Automation\Technical Healthchecks\Data\Blank Tech Healthcheck Template.xlsx', sheet_name = 'Data', read_only=True )
 
 # update 'data' tab
-       
+
     df_data = df_data.merge( df, on= 'report_template', how='left' )
     df_data = df_data.rename( columns={ 'basic_total' : report_month })
     df_data = df_data.fillna( 0 )
-    
+
     print( '\n- Data Tab Updated' )
 
 
@@ -163,9 +155,9 @@ for i in hc_list.index:
     sumif_data = df_data[[ 'Issue', report_month ]]
     sumif_data = sumif_data.groupby( 'Issue' )[report_month].sum()
     df_healthcheck = df_healthcheck.merge( sumif_data , on='Issue', how='left' )
-    
+
     print( '- Healthcheck Tab Updated' )
-    
+
 # save template
 
     writer = pd.ExcelWriter( fr'L:\Commercial\Operations\Technical SEO\Automation\Technical Healthchecks\Data\Crawl Data\{client} - Tech Healthcheck Template.xlsx', engine='xlsxwriter' )
@@ -177,12 +169,12 @@ for i in hc_list.index:
     data_ws.set_zoom(85)
     healthcheck_ws.set_zoom(85)
     writer.save()
-    
-    print( f'\n{client} Template Saved' 
+
+    print( f'\n{client} Template Saved'
             '\n'
             '\n*   *   *   *   *   *   *   *   *   *' )
 
-print( '\n-----------------------------' 
+print( '\n-----------------------------'
        '\nHealthcheck Templates Updated'
        '\n-----------------------------' )
 
