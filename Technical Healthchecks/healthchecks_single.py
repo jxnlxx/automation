@@ -199,10 +199,16 @@ for i in hc_list.index:
     try:
         df_data = pd.read_excel(fr'L:\Commercial\Operations\Technical SEO\Automation\Data\Technical Healthchecks\Crawl Data\{client} - Tech Healthcheck Template.xlsx', sheet_name='Data')
         df_healthcheck = pd.read_excel(fr'L:\Commercial\Operations\Technical SEO\Automation\Data\Technical Healthchecks\Crawl Data\{client} - Tech Healthcheck Template.xlsx', sheet_name='Healthcheck')
-
     except FileNotFoundError:
         df_data = pd.read_excel(fr'L:\Commercial\Operations\Technical SEO\Automation\Data\Technical Healthchecks\Blank Tech Healthcheck Template.xlsx', sheet_name='Data', read_only=True)
         df_healthcheck = pd.read_excel(fr'L:\Commercial\Operations\Technical SEO\Automation\Data\Technical Healthchecks\Blank Tech Healthcheck Template.xlsx', sheet_name='Healthcheck', read_only=True)
+
+    # if column labelled with 'report_month' already exists, drop it
+    try:
+        df_data = df_data.drop(columns=[report_month])
+        df_healthcheck = df_healthcheck.drop(columns=[report_month])
+    except KeyError:
+        pass
 
     # update 'data' tab
     df_data = df_data.merge(df, on= 'report_template', how='left')
