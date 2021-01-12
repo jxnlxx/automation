@@ -33,9 +33,9 @@ DETAILS
 
 This request returns all keywords saved under the specified site.
 
-Requires a STAT 'siteId' which can be obtained from the STAT API 
+Requires a STAT 'siteId' which can be obtained from the STAT API
     (see stat_api_sites_all.py for more info)
-    
+
 Correct at June 2020:
 
 JSON request URL:
@@ -48,12 +48,12 @@ results                 INTEGER         NO              Default is 100, max is 5
 
 JSON typical response:
 
-{  
-   "Response":{  
+{
+   "Response":{
       "responsecode":"200",
       "resultsreturned":"2",
-      "Result":[  
-         {  
+      "Result":[
+         {
             "Id":"3008",
             "Keyword":"shirt",
             "KeywordMarket":"US-en",
@@ -61,7 +61,7 @@ JSON typical response:
             "KeywordDevice":"Smartphone",
             "CreatedAt":"2011-01-25"
          },
-         {  
+         {
             "Id":"3009",
             "Keyword":"shoes",
             "KeywordMarket":"US-en",
@@ -163,10 +163,10 @@ for i in site_list.index:
                 p += 1                                                                  # add 1 to 'n'
             except TypeError:# TypeError:                                               # if 'nextpage' is blank, this will yield a TypeError when attempting to append
                 break                                                                   # this will be the last page, so break the loop
-    
-    # process keywords for export    
+
+    # process keywords for export
     total_kws = len(kw_list)
-       
+
     print(f'Processing {total_kws} keywords...')
     df = pd.DataFrame({
         'created_at' : [i['CreatedAt'] for i in kw_list],
@@ -180,7 +180,7 @@ for i in site_list.index:
         'mar' : [i['KeywordStats']['LocalSearchTrendsByMonth']['Mar'] for i in kw_list],
         'apr' : [i['KeywordStats']['LocalSearchTrendsByMonth']['Apr'] for i in kw_list],
         'may' : [i['KeywordStats']['LocalSearchTrendsByMonth']['May'] for i in kw_list],
-        'jun' : [i['KeywordStats']['LocalSearchTrendsByMonth']['Jun'] for i in kw_list], 
+        'jun' : [i['KeywordStats']['LocalSearchTrendsByMonth']['Jun'] for i in kw_list],
         'jul' : [i['KeywordStats']['LocalSearchTrendsByMonth']['Jul'] for i in kw_list],
         'aug' : [i['KeywordStats']['LocalSearchTrendsByMonth']['Aug'] for i in kw_list],
         'sep' : [i['KeywordStats']['LocalSearchTrendsByMonth']['Sep'] for i in kw_list],
@@ -188,12 +188,13 @@ for i in site_list.index:
         'nov' : [i['KeywordStats']['LocalSearchTrendsByMonth']['Nov'] for i in kw_list],
         'dec' : [i['KeywordStats']['LocalSearchTrendsByMonth']['Dec'] for i in kw_list]
         })
-        
+
+
 # =============================================================================
 #     df = pd.DataFrame()
 #     k = 0 # for showing progress through site keywords
 #     total_kws = len(kw_list)
-#     
+#
 #     for item in kw_list:
 #         if k % 1000 == 0 and k != 0:
 #             print(f'Completed {k} of {total_kws}')
@@ -205,13 +206,13 @@ for i in site_list.index:
 #                 'keyword' : item.get('Keyword'),
 #                 'device' : item.get('KeywordDevice'),
 #                 'market' : item.get('KeywordMarket'),
-#                 'regional_search_volume' : item.get('KeywordStats').get('RegionalSearchVolume'),               
+#                 'regional_search_volume' : item.get('KeywordStats').get('RegionalSearchVolume'),
 #                 'jan' : item.get('KeywordStats').get('LocalSearchTrendsByMonth').get('Jan'),
 #                 'feb' : item.get('KeywordStats').get('LocalSearchTrendsByMonth').get('Feb'),
 #                 'mar' : item.get('KeywordStats').get('LocalSearchTrendsByMonth').get('Mar'),
 #                 'apr' : item.get('KeywordStats').get('LocalSearchTrendsByMonth').get('Apr'),
 #                 'may' : item.get('KeywordStats').get('LocalSearchTrendsByMonth').get('May'),
-#                 'jun' : item.get('KeywordStats').get('LocalSearchTrendsByMonth').get('Jun'), 
+#                 'jun' : item.get('KeywordStats').get('LocalSearchTrendsByMonth').get('Jun'),
 #                 'jul' : item.get('KeywordStats').get('LocalSearchTrendsByMonth').get('Jul'),
 #                 'aug' : item.get('KeywordStats').get('LocalSearchTrendsByMonth').get('Aug'),
 #                 'sep' : item.get('KeywordStats').get('LocalSearchTrendsByMonth').get('Sep'),
@@ -243,4 +244,3 @@ time_elapsed = end_time - start_time
 print('\n'+'DURN!'
       '\n'+f'Time elapsed: {time_elapsed}'
       '\n'+f'Requests made: {request_counter}')
-    

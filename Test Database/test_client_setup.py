@@ -1,6 +1,10 @@
-"""
-@author: jxnlxx
-"""
+# -*- coding: utf-8 -*-
+#
+# @author: Jon Lee
+# @email: jon.lee@iprospect.com
+# @create date: 2020-08-03 14:27:54
+#
+
 # test_client_setup.py
 
 import sqlite3 as lite
@@ -16,10 +20,13 @@ with con:
         Date DATETIME,
         Id VARCHAR PRIMARY KEY,
         KeywordId INTEGER,
-        Keyword INTEGER, FOREIGN KEY (Keyword) REFERENCES Keyword (KeywordId),
-        KeywordMarket INTEGER, FOREIGN KEY (KeywordMarket) REFERENCES Market (MarketId),
+        Keyword INTEGER,
+        FOREIGN KEY (Keyword) REFERENCES Keyword (KeywordId),
+        KeywordMarket INTEGER,
+        FOREIGN KEY (KeywordMarket) REFERENCES Market (MarketId),
         KeywordLocation TEXT,
-        KeywordDevice TEXT, FOREIGN KEY (Device) REFERENCES Device (DeviceId),
+        KeywordDevice TEXT,
+        FOREIGN KEY (Device) REFERENCES Device (DeviceId),
         KeywordTranslation TEXT,
         KeywordCategories TEXT,
         KeywordTags TEXT,
@@ -40,8 +47,9 @@ with con:
         Jun INTEGER,
         May INTEGER,
         CPC REAL,
-        Type INTEGER,           FOREIGN KEY (Type) REFERENCES Type (TypeId),
+        Type INTEGER,
+        FOREIGN KEY (Type) REFERENCES Type (TypeId),
         GoogleRank INTEGER,
         GoogleBaseRank INTEGER,
-        GoogleUrl INTEGER,      FOREIGN KEY (GoogleUrl) REFERENCES Url (UrlId),
+        GoogleUrl INTEGER,FOREIGN KEY (GoogleUrl) REFERENCES Url (UrlId),
     );''')

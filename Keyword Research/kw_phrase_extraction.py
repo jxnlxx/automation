@@ -5,6 +5,7 @@ Created on Tue Mar 24 13:44:47 2020
 @author: JLee35
 
 """
+#%%
 
 import pandas as pd
 import re
@@ -19,6 +20,8 @@ print('Getting Phrases')
 list_of_keywords = list(filter(None, kw_input.Keyword.tolist()))
 list_of_phrases = [str(kw).split(" ") for kw in list_of_keywords]
 
+#%%
+
 phrase_counts = collections.Counter()
 print('Counting')
 for phrase in list_of_phrases:
@@ -26,11 +29,15 @@ for phrase in list_of_phrases:
     phrase_counts.update(nltk.ngrams(phrase,2))
     phrase_counts.update(nltk.ngrams(phrase,3))
 
+#%%
+
 # Unbracket keywords
 print('Filtering for Most Common Phrases')
 top_phrases = phrase_counts.most_common(20000)
 top_phrases = pd.DataFrame(top_phrases, columns=['keyword', 'count'])
 top_phrases = top_phrases[top_phrases['keyword'] != 'nan']
+
+#%%
 
 print('Formatting Phrases')
 def unbracket(keyword):
@@ -38,6 +45,8 @@ def unbracket(keyword):
     return fixed_keyword
 
 top_phrases['keyword'] = top_phrases.keyword.apply(lambda x: unbracket(x))
+
+#%%
 
 # Remove keyword that are in our list of stopwords
 stop = stopwords.words('english')

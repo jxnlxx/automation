@@ -12,10 +12,11 @@ with con:
 
     cur = con.cursor()
 
-    cur.execute("CREATE TABLE Keyword(KeywordId INTEGER PRIMARY KEY AUTOINCREMENT, Name TEXT);")
-    cur.execute("CREATE TABLE Device(DeviceId INTEGER PRIMARY KEY AUTOINCREMENT, Name TEXT);")
-    cur.execute("CREATE TABLE Market(MarketId INTEGER PRIMARY KEY AUTOINCREMENT, Name TEXT);")
-    cur.execute("CREATE TABLE Url(UrlId INTEGER PRIMARY KEY AUTOINCREMENT, Name TEXT);")
+    cur.execute("CREATE TABLE IF NOT EXISTS Keyword (KeywordId INTEGER PRIMARY KEY AUTOINCREMENT, Name TEXT);")
+    cur.execute("CREATE TABLE Device (DeviceId INTEGER PRIMARY KEY AUTOINCREMENT, Name TEXT);")
+    cur.execute("CREATE TABLE Market (MarketId INTEGER PRIMARY KEY AUTOINCREMENT, Name TEXT);")
+    cur.execute("CREATE TABLE Url (UrlId INTEGER PRIMARY KEY AUTOINCREMENT, Name TEXT);")
+    cur.execute("CREATE TABLE Type (TypeId INTEGER PRIMARY KEY AUTOINCREMENT, Name TEXT);")
 
 #CREATE TABLE Bank(No INTEGER PRIMARY KEY, MatchId INT, Balance INT);
 #SELECT Balance FROM Bank WHERE No = (SELECT MAX(No) FROM Bank);

@@ -152,6 +152,5 @@ for i in queries_index.index:
 #    break
 print('\nDURN!')
 
-#%%
-
 # %%
+

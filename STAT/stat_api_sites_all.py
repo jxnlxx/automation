@@ -4,7 +4,7 @@ Created on Fri Jun 12 08:30:30 2020
 
 @author: jon-lee@iprospect.com
 """
-
+#%%
 import os
 import datetime
 import requests
@@ -93,7 +93,7 @@ month = 2
 days_in_month = monthrange(year,month)[1]
 
 
-#set a delay 
+#set a delay
 minute = 60
 sleep_timer = minute*20
 
@@ -125,10 +125,10 @@ site_list = pd.DataFrame(site_list)
 #site_list = site_list[site_list['Tracking'].str.contains('^true')]
 
 #for i in site_list.index:
-    
+
 print('\n'+'Exporting data...')
 
-site_list.to_csv(r'L:\Commercial\Operations\Technical SEO\Automation\Setup\stat_api_sites_all.csv', index = False)
-
+site_list.to_csv(r'C:\Users\JLee35\Automation\STAT\stat_api_sites_all.csv', index = False)
 
 print('\n'+'DURN!')
+# %%

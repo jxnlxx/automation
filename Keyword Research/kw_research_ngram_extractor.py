@@ -38,7 +38,7 @@ kw_list = kw_list.drop_duplicates(subset = ['search volume', 'isomers'], keep='f
 kw_list = kw_list.drop(labels='isomers', axis=1)
 
 print('Getting Phrases')
-list_of_keywords = list(filter(None, kw_input.keyword.tolist()))
+list_of_keywords = list(filter(None, kw_list.keyword.tolist()))
 list_of_phrases = [str(kw).split(' ') for kw in list_of_keywords]
 
 print('Counting')
@@ -94,7 +94,7 @@ def find_total_search_volume(keyword, original_keyword_data, keyword_column, sea
 #     return total search volume for wherever that keyword appeared
     return search_vol
 
-top_phrases['combined volume'] = top_phrases.keyword.apply(lambda x: find_total_search_volume(x, kw_input, 'keyword', 'search volume'))
+top_phrases['combined volume'] = top_phrases.keyword.apply(lambda x: find_total_search_volume(x, kw_list, 'keyword', 'search volume'))
 
 top_phrases['keyword'] = top_phrases['keyword'].astype(str)
 

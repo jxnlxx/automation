@@ -15,16 +15,16 @@ from calendar import monthrange
 from xlsxwriter.utility import xl_range
 from urllib.parse import urlparse
 from collections import defaultdict
-from getstat import stat_subdomain, stat_key                                    # saved locally in C:\Users\USERNAME\AppData\Local\Programs\Python\Python37-32\Lib
+from getstat import stat_subdomain, stat_key                                    # saved locally in r'C:\Users\USERNAME\AppData\Local\Programs\Python\Python37-32\Lib'
 
 '''
 DETAILS
 
-This request returns the SoV score for each competitor domain that appears 
+This request returns the SoV score for each competitor domain that appears
 on the SERP for a specified site
 
 The output is a CSV file saved in this folder:
-L:\Commercial\Operations\Technical SEO\Automation\Setup
+r'L:\Commercial\Operations\Technical SEO\Automation\Setup'
 
 '''
 
@@ -86,7 +86,7 @@ while True:
         new_page = response.get('Response').get('ShareOfVoice')
         sov_list = sov_list + new_page                                  # append the data to the kw_list
         n += 1                                                          # add 1 to 'n'
-        print( n, url )     
+        print( n, url )
     except TypeError:
         break
 df = pd.DataFrame(columns=['Date', 'Domain', 'Share'])

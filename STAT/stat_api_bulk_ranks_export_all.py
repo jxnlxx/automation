@@ -163,10 +163,7 @@ for index, row in jobs_head.iterrows(): # this construction allows us to go acro
     save_name = site_url.replace('-','_') # Remove slashes so file will save/load properly   
     print('\n'+f'Checking for existing data for {site_url}...')
 
-#%%
-# =============================================================================
-# Load templates
-# =============================================================================
+#%% Load Templates
 
     try:
         # try loading client's historical data with dtype=object. no calculations are needed and helps with memory usage (i think)
@@ -284,7 +281,7 @@ for index, row in jobs_head.iterrows(): # this construction allows us to go acro
 
         print('Done!')
 
-# =============================================================================
+# %%
 
         print('Updating existing keywords...')
 
@@ -300,7 +297,7 @@ for index, row in jobs_head.iterrows(): # this construction allows us to go acro
         google_ranking_url_df = pd.merge(google_ranking_url_df, gru_df2, how='left', on='keyword_id')
         print('Done!')
 
-# =============================================================================
+# %%
 
         print('Checking for new keywords...')
 

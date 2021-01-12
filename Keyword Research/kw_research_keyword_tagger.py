@@ -10,6 +10,7 @@ import re
 import collections
 import numpy as np
 import pandas as pd
+import tkinter.filedialog
 import tkinter as tk
 import datetime as dt
 
@@ -17,7 +18,7 @@ start_time = dt.datetime.now()
 
 # select keyword research file
 root = tk.Tk()
-filename  = tk.filedialog.askopenfilename(title='Select keyword research (not tagging) file', filetypes=(('All Files','*.*'),('Excel files','*.xlsx')))
+filename  = tk.filedialog.askopenfilename(title='Select keyword research (not tagging) file', filetypes=(('All Files','*.*'),))
 root.destroy()
 if filename.endswith('.csv'):
     kw_research = pd.read_csv(fr'{filename}')
@@ -30,7 +31,7 @@ else:
 
 # select keyword tagging file
 root = tk.Tk()
-filename = tk.filedialog.askopenfilename(title='Select ngram tagging file', filetypes=(('All Files','*.*'),('Excel files','*.xlsx')))
+filename = tk.filedialog.askopenfilename(title='Select ngram tagging file', filetypes=(('All Files','*.*'),))
 root.destroy()
 if filename.endswith('.csv'):
     kw_tagging = pd.read_csv(fr'{filename}')
