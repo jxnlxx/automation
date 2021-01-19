@@ -45,7 +45,7 @@ print('\n'+'Welcome to the Google Search Console Site Data Export script!'
 
 davids_law1 = int(dt.datetime.today().strftime('%Y')) - 1
 davids_law2 = int(dt.datetime.today().strftime('%Y'))
-  
+
 print('\n'+'Which year would you like to run reports for?')
 while True:
     try:
@@ -55,7 +55,7 @@ while True:
         else:
             break
     except ValueError:
-        print('Invalid response. Please try again.')    
+        print('Invalid response. Please try again.')
 
 if year == davids_law1:
     davids_law3 = int(dt.datetime.today().strftime('%m'))-3
@@ -81,7 +81,6 @@ while True:
             break
     except ValueError:
         print('Invalid response. Please try again.')
-    
 
 # =============================================================================
 # START
@@ -108,17 +107,17 @@ parser = argparse.ArgumentParser(
     formatter_class=argparse.RawDescriptionHelpFormatter,
     parents=[tools.argparser])
 flags = parser.parse_args([])
- 
+
 flow = client.flow_from_clientsecrets(
     CLIENT_SECRETS_PATH, scope = SCOPES,
     message = tools.message_if_missing(CLIENT_SECRETS_PATH))
- 
+
 # Prepare credentials and authorize HTTP
 # If they exist, get them from the storage object
 # credentials will get written back to a file.
 storage = file.Storage(WEBMASTER_CREDS_DAT)
 credentials = storage.get()
- 
+
 # If authenticated credentials don't exist, open Browser to authenticate
 if credentials is None or credentials.invalid:
     credentials = tools.run_flow(flow, storage, flags)
@@ -142,7 +141,7 @@ total_sites = len(site_list)
 for i in site_list.index:
     site_url = site_list['siteUrl'][i]
     site_name = site_url.replace('/','_') # Remove slashes so file will save/load properly
-    site_name = site_name.replace(':','_') # Remove slashes so file will save/load properly      
+    site_name = site_name.replace(':','_') # Remove slashes so file will save/load properly
     print(f'Getting data for {site_url}'
           '\n'+'(Site {i+1} of {total_sites})')
     try:
@@ -164,7 +163,7 @@ for i in site_list.index:
         historical_position = ''
         pass
     for date in pd.date_range(start=start_date, end=end_date):
-        date = date.strftime('%Y-%m-%d')  
+        date = date.strftime('%Y-%m-%d')
         try:
             last_date = historical_clicks.iloc[:,-1].name
             if last_date >= date:
@@ -176,7 +175,7 @@ for i in site_list.index:
                 pass
         except AttributeError:
             pass
-        
+
         # populate the request with details
         # available 'dimensions' are - 'date', 'country', 'device', 'page', 'query', 'searchAppearance'
         max_row = 25000
@@ -189,8 +188,8 @@ for i in site_list.index:
               'rowLimit': 25000, # valid range is 1 - 25000; default is 1000
               'startRow': 0 # '0' starts it at the beginning
                }
-    
-    
+
+
        # response = service.searchanalytics().query(siteUrl=client_url, body=request).execute()
         response = service.searchanalytics().query(siteUrl=site_url, body=request).execute()
         request_counter += 1
@@ -205,7 +204,7 @@ for i in site_list.index:
             print('Processing results...')
             #Process the response
             for row in response['rows']:
-                sc_dict['date'].append(row['keys'][0] or 0)    
+                sc_dict['date'].append(row['keys'][0] or 0)
                 sc_dict['page'].append(row['keys'][1] or 0)
                 sc_dict['query'].append(row['keys'][2] or 0)
                 sc_dict['country'].append(row['keys'][3] or 0)
@@ -215,12 +214,12 @@ for i in site_list.index:
                 sc_dict['impressions'].append(row['impressions'] or 0)
                 sc_dict['position'].append(row['position'] or 0)
             print('successful at %i' % max_row)
-     
+
         except KeyError:
             print('error occurred at %i' % max_row)
             continue
         #Add response to dataframe response
-        
+
         df = pd.DataFrame(data = sc_dict)
         print('Filtering results...')        
         df['clicks'] = df['clicks'].astype('int')
@@ -229,14 +228,14 @@ for i in site_list.index:
         df['position'] = df['position'].round(2)
         df = df.sort_values('impressions', ascending = False)
         df = df.head(2500)
-        
+
         ## create separate DataFrames such that each one contains only one of
         ## clicks, impressions, ctr, and position
         clicks_df = df.drop(columns=['date', 'impressions', 'ctr', 'position'])
         impressions_df = df.drop(columns=['date', 'clicks', 'ctr', 'position'])
         ctr_df = df.drop(columns=['date', 'clicks', 'impressions', 'position'])
         position_df = df.drop(columns=['date', 'clicks', 'impressions', 'ctr'])
-        
+
         ## change name of columns to 'date'
         clicks_df = clicks_df.rename(columns={'clicks' : f'{date}'})
         impressions_df = impressions_df.rename(columns={'impressions' : f'{date}'})
@@ -266,9 +265,9 @@ for i in site_list.index:
     except AttributeError:
         print('No data to export; moving onto next client...')
     print('Done!')
-      
+
  #   break
-    
+
 # =============================================================================
 # END TIMER
 # =============================================================================
