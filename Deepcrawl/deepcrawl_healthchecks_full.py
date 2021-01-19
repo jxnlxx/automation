@@ -36,7 +36,7 @@ report_month = report_month.strftime('%b-%y')
 backup_month = backup_month.strftime('%Y-%m')
 
 # =============================================================================
-# backup healthcheck templayes if no backup exists
+# backup healthcheck templates if no backup exists
 # =============================================================================
 
 n = 1
