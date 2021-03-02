@@ -40,26 +40,26 @@ backup_month = backup_month.strftime('%Y-%m')
 # =============================================================================
 
 n = 1
-if os.path.exists(fr'L:\Commercial\Operations\Technical SEO\Automation\Data\Technical Healthchecks\Crawl Data\Backup\{backup_month}'):
+if os.path.exists(fr'C:\Users\JLee35\dentsu\iProspect Hub - Documents\Channels\Owned & Earned\Automation\STAT\Tech Healthchecks\Templates\Backup\{backup_month}'):
     pass
 else:
     print('Creating backup of data...')
-    os.mkdir(fr'L:\Commercial\Operations\Technical SEO\Automation\Data\Technical Healthchecks\Crawl Data\Backup\{backup_month}')
-    src_dir = fr'L:\Commercial\Operations\Technical SEO\Automation\Data\Technical Healthchecks\Crawl Data'
-    dst_dir = fr'L:\Commercial\Operations\Technical SEO\Automation\Data\Technical Healthchecks\Crawl Data\Backup\{backup_month}'
+    os.mkdir(fr'C:\Users\JLee35\dentsu\iProspect Hub - Documents\Channels\Owned & Earned\Automation\STAT\Tech Healthchecks\Templates\Backup\{backup_month}')
+    src_dir = fr'C:\Users\JLee35\dentsu\iProspect Hub - Documents\Channels\Owned & Earned\Automation\STAT\Tech Healthchecks\Templates'
+    dst_dir = fr'C:\Users\JLee35\dentsu\iProspect Hub - Documents\Channels\Owned & Earned\Automation\STAT\Tech Healthchecks\Templates\{backup_month}'
     time.sleep(1)
-    for filename in os.listdir(fr'L:\Commercial\Operations\Technical SEO\Automation\Data\Technical Healthchecks\Crawl Data'):
-        if filename.endswith(".xlsx"):
-            if filename.startswith('~$'): # skips hidden temp files
-                continue
-            else:
+    for filename in os.listdir(fr'C:\Users\JLee35\dentsu\iProspect Hub - Documents\Channels\Owned & Earned\Automation\STAT\Tech Healthchecks\Templates'):
+        if filename.startswith('~$'): # skips hidden temp files
+            continue
+        else:
+            if filename.endswith(".xlsx"):
                 src_file = os.path.join(src_dir, filename)
                 dst_file = os.path.join(dst_dir, filename)
                 print(n, filename)
                 shutil.copy(src_file, dst_file)
                 n += 1
-        else:
-            pass
+            else:
+                pass
     print('Done!')
 
 # =============================================================================
@@ -137,7 +137,7 @@ for i in hc_list.index:
     # begin building dataframe for crawl
     print(f'Getting Data for {site_primary}')
     df = pd.DataFrame()                                                                 # create a blank DataFrame for the project
-    url = 'https://api.deepcrawl.com' + last_crawl + '/reports?page=1&per_page=200'     # create a URL from the href 
+    url = 'https://api.deepcrawl.com' + last_crawl + '/reports?page=1&per_page=200'     # create a URL from the href
     crawl = requests.get(url, headers=headers)                                          # ping the URL to get the data
 
     # check status code and retry if not 200
@@ -174,12 +174,12 @@ for i in hc_list.index:
     # see if client's template exists, and if not, open blank template
 
     try:
-        df_data = pd.read_excel(fr'L:\Commercial\Operations\Technical SEO\Automation\Data\Technical Healthchecks\Crawl Data\{client} - Tech Healthcheck Template.xlsx', sheet_name='Data')
-        df_healthcheck = pd.read_excel(fr'L:\Commercial\Operations\Technical SEO\Automation\Data\Technical Healthchecks\Crawl Data\{client} - Tech Healthcheck Template.xlsx', sheet_name='Healthcheck')
+        df_data = pd.read_excel(fr'C:\Users\JLee35\dentsu\iProspect Hub - Documents\Channels\Owned & Earned\Automation\STAT\Tech Healthchecks\Templates\{client} - Tech Healthcheck Template.xlsx', sheet_name='Data')
+        df_healthcheck = pd.read_excel(fr'C:\Users\JLee35\dentsu\iProspect Hub - Documents\Channels\Owned & Earned\Automation\STAT\Tech Healthchecks\Templates\{client} - Tech Healthcheck Template.xlsx', sheet_name='Healthcheck')
 
     except FileNotFoundError:
-        df_data = pd.read_excel(fr'L:\Commercial\Operations\Technical SEO\Automation\Data\Technical Healthchecks\Blank Tech Healthcheck Template.xlsx', sheet_name='Data', read_only=True)
-        df_healthcheck = pd.read_excel(fr'L:\Commercial\Operations\Technical SEO\Automation\Data\Technical Healthchecks\Blank Tech Healthcheck Template.xlsx', sheet_name='Healthcheck', read_only=True)
+        df_data = pd.read_excel(fr'C:\Users\JLee35\dentsu\iProspect Hub - Documents\Channels\Owned & Earned\Automation\STAT\Tech Healthchecks\Templates\_Blank Tech Healthcheck Template.xlsx', sheet_name='Data', read_only=True)
+        df_healthcheck = pd.read_excel(fr'C:\Users\JLee35\dentsu\iProspect Hub - Documents\Channels\Owned & Earned\Automation\STAT\Tech Healthchecks\Templates\_Blank Tech Healthcheck Template.xlsx', sheet_name='Healthcheck', read_only=True)
 
     # update 'data' tab
 
@@ -200,7 +200,7 @@ for i in hc_list.index:
 
     # save template
 
-    writer = pd.ExcelWriter(fr'L:\Commercial\Operations\Technical SEO\Automation\Data\Technical Healthchecks\Crawl Data\{client} - Tech Healthcheck Template.xlsx', engine='xlsxwriter')
+    writer = pd.ExcelWriter(fr'C:\Users\JLee35\dentsu\iProspect Hub - Documents\Channels\Owned & Earned\Automation\STAT\Tech Healthchecks\Templates\{client} - Tech Healthcheck Template.xlsx', engine='xlsxwriter')
     df_data.to_excel(writer, sheet_name = 'Data', index=False)
     df_healthcheck.to_excel(writer, sheet_name = 'Healthcheck', index=False)
     # set zoom at 85
@@ -211,7 +211,7 @@ for i in hc_list.index:
     writer.save()
 
     print(f'\n{client} Template Saved'
-           '\n'+'*   *   *   *   *   *   *   *   *   *')
+           '\n\n'+'*   *   *   *   *   *   *   *   *   *')
 
 print('\n'+'Healthcheck Templates Updated!')
 
@@ -226,24 +226,24 @@ for i in hc_list.index:
 
     # load workbook as openpyxl and convert to dataframe
     # (gets around an issue where pandas wouldn't load the workbook properly)
-    print(f'\nOpening {client} Healthcheck')
+    print(f'\nOpening {client} healthcheck')
     try:
-        df = openpyxl.load_workbook(filename=fr'L:\Commercial\Operations\Technical SEO\Automation\Data\Technical Healthchecks\Crawl Data\{client} - Tech Healthcheck Template.xlsx', data_only=True)
+        df = openpyxl.load_workbook(filename=fr'C:\Users\JLee35\dentsu\iProspect Hub - Documents\Channels\Owned & Earned\Automation\STAT\Tech Healthchecks\Templates\{client} - Tech Healthcheck Template.xlsx', data_only=True)
         df = df['Healthcheck']
         df = pd.DataFrame(df.values)
         df_rows, df_cols = df.shape
         xl_rows = df_rows + 4
-        print(f'Starting to Write {client} Healthcheck')
+        print(f'Starting to write {client} healthcheck')
     except FileNotFoundError:
-        print(f'{client} Healthcheck Template not found')
+        print(f'{client} Healthcheck template not found')
         continue
     df_rows, df_cols = df.shape
     xl_rows = df_rows+4
     df = df.fillna('')
 
-    # create blank workbook with xlsxwriter
+    # create blank workbook with xlsxwriter at save location
 
-    wb = xl.Workbook(fr'L:\Commercial\Operations\Technical SEO\Technical Healthchecks\01. Healthchecks\{client} - Tech Healthcheck.xlsx')
+    wb = xl.Workbook(fr'C:\Users\JLee35\dentsu\Monthly Healthchecks - Documents\General\Monthly Healthchecks\{client} - Tech Healthcheck.xlsx')
     ws = wb.add_worksheet('Healthcheck')
 
     #  CELL FORMATTING
@@ -369,13 +369,13 @@ for i in hc_list.index:
 
     # insert brand logo
     if brand == 'Carat':
-        ws.insert_image('B2', fr'L:\Commercial\Operations\Technical SEO\Automation\Data\Technical Healthchecks\Branding\Logos\Carat Logo.png', {'y_offset':5, 'x_scale':0.13, 'y_scale': 0.13})
+        ws.insert_image('B2', fr'C:\Users\JLee35\dentsu\iProspect Hub - Documents\Channels\Owned & Earned\Automation\STAT\Tech Healthchecks\Branding\Logos\Carat Logo.png', {'y_offset':5, 'x_scale':0.13, 'y_scale': 0.13})
 
     if brand == 'Vizeum':
-        ws.insert_image('B1', fr'L:\Commercial\Operations\Technical SEO\Automation\Data\Technical Healthchecks\Branding\Logos\Vizeum Logo.png', {'x_offset':20, 'y_offset':10, 'x_scale':0.4, 'y_scale': 0.4})
+        ws.insert_image('B1', fr'C:\Users\JLee35\dentsu\iProspect Hub - Documents\Channels\Owned & Earned\Automation\STAT\Tech Healthchecks\Branding\Logos\Vizeum Logo.png', {'x_offset':20, 'y_offset':10, 'x_scale':0.4, 'y_scale': 0.4})
 
     if brand not in ['Carat', 'Vizeum']:
-        ws.insert_image('B2', fr'L:\Commercial\Operations\Technical SEO\Automation\Data\Technical Healthchecks\Branding\Logos\iPro Logo.png', {'x_scale':0.22, 'y_scale': 0.22})
+        ws.insert_image('B2', fr'C:\Users\JLee35\dentsu\iProspect Hub - Documents\Channels\Owned & Earned\Automation\STAT\Tech Healthchecks\Branding\Logos\iProspect Logo.png', {'x_scale':0.22, 'y_scale': 0.22})
 
     # ADDITIONAL FORMATTING
 
