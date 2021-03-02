@@ -16,3 +16,7 @@ TF-IDF/output_concat
 *.xlsx
 *.csv
 Keyword Research/Data
+Brandwatch\BetVictor\Data
+Brandwatch\Hammerson\Data
+Brandwatch\MusicMagpie\Data
+Keyword Research\Data
