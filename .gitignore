@@ -17,6 +17,9 @@ TF-IDF/output_concat
 *.csv
 Keyword Research/Data
 Brandwatch\BetVictor\Data
+Brandwatch\BetVictor\tokens.txt
 Brandwatch\Hammerson\Data
+Brandwatch\Hammerson\tokens.txt
 Brandwatch\MusicMagpie\Data
+Brandwatch\MusicMagpie\tokens.txt
 Keyword Research\Data
