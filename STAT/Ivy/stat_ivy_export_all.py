@@ -21,14 +21,45 @@ year = int(date.strftime('%Y'))
 month = int(date.strftime('%m'))
 days = int(date.strftime('%d'))
 start_date = f'{year}-{month:02d}-01'
-
 cutoff = f'{year}-{month:02d}-{days:02d}'
 
-# script
+# # Custom Date range - just enter last date in month as 'date'
+# date = '2020-06-30'
+# date = dt.datetime.strptime(date, '%Y-%m-%d')
+# year = int(date.strftime('%Y'))
+# month = int(date.strftime('%m'))
+# days = int(date.strftime('%d'))
+# start_date = f'{year}-{month:02d}-01'
+# cutoff = f'{year}-{month:02d}-{days:02d}'
+
+
+# file locations
+
+ivy_path = fr'C:\Users\JLee35\dentsu\iProspect Hub - Documents\Channels\Owned & Earned\Automation\STAT\The Ivy Restaurants'
+teams_path = fr'C:\Users\JLee35\dentsu\IVY Restaurants - Documents\General\STAT Rank Reports'
+
+#%% check final job is 'completed
+
+jobs_all = pd.read_csv(os.path.join(ivy_path, fr'Requests\{year}_{month:02d}_ivy_requests.csv'))
+
+final_job = jobs_all.iloc[-1,-1]
+final_job = final_job.replace("'","") # remove ' so json.loads() works
+final_job = json.loads(final_job) # converts str of site_ids into list
+response = requests.get(f'{stat_base_url}/bulk/status?id={final_job[-1]}&format=json')
+response = response.json()
+status = response.get('Response').get('Result').get('Status')
+if status != 'Completed':
+    time = dt.datetime.now().strftime('%H:%M')
+    print(f'{time} - Final job status: {status}')
+    print('Current time:', dt.datetime.now().strftime('%H:%M'))
+else:
+    print(f'{time} - Final job status: {status}')
+    print('Continue with next cell')
+
+#%% retrieve ranks and export data
 
 print(f'Loading {year}_{month:02d}_ivy_requests.csv')
-jobs_all = pd.read_csv(fr'L:\Commercial\Operations\Technical SEO\Automation\Data\STAT\The Ivy Restaurants\Requests\{year}_{month:02d}_ivy_requests.csv')
-
+jobs_all = pd.read_csv(os.path.join(ivy_path, fr'Requests\{year}_{month:02d}_ivy_requests.csv'))
 jobs_all = jobs_all.set_index('Title')
 
 # filter dataframe to exclude jobs already done
@@ -37,8 +68,8 @@ try:
     jobs_head = jobs_head.drop(columns=['Status'])
 # if 'Status' column doesn't exist,
 except KeyError:
-    jobs_head = jobs_all
-    jobs_all = jobs_all.assign(Status='').astype(str)
+    jobs_head = jobs_all.copy()
+    jobs_all['Status'] = ''
 
 #jobs_head = jobs_head.head(2) #for testing 2 sites for full month
 
@@ -49,7 +80,12 @@ new_sites = []
 
 # try making directory if it doesnt exist
 try:
-    os.mkdir(fr'L:\Commercial\Operations\Technical SEO\Automation\Data\STAT\The Ivy Restaurants\Exports\{year}_{month:02d}_ivy_restaurants')
+    os.mkdir(os.path.join(ivy_path, fr'Exports\{year}_{month:02d}_ivy_restaurants'))
+except FileExistsError:
+    pass
+
+try:
+    os.mkdir(os.path.join(ivy_path, fr'Exports\{year}_{month:02d}_ivy_restaurants\Data'))
 except FileExistsError:
     pass
 
@@ -123,56 +159,60 @@ for index, row in jobs_head.iterrows(): # this construction allows us to go acro
     site_ranks.insert(0,'Restaurant',site_name)
 
     # save file
-    site_ranks.to_csv(fr'L:\Commercial\Operations\Technical SEO\Automation\Data\STAT\The Ivy Restaurants\Exports\{year}_{month:02d}_ivy_restaurants\{year}_{month:02d}_{save_name}.csv', index=False)
+    site_ranks.to_csv(ivy_path + fr'\Exports\{year}_{month:02d}_ivy_restaurants\Data\{year}_{month:02d}_{save_name}.csv', index=False)
 
     print('\n'+f'Updating {year}_{month:02d}_ivy_requests.csv...')
 
     # Update jobs_all and save
     jobs_all.at[f'{site_name}','Status'] = 'Done'
     jobs_all = jobs_all.reset_index()  # reset index so it has a label when saved (problems using file in future otherwise...)
-    jobs_all.to_csv(fr'L:\Commercial\Operations\Technical SEO\Automation\Data\STAT\The Ivy Restaurants\Requests\{year}_{month:02d}_ivy_requests.csv', index=False)
+    jobs_all.to_csv(ivy_path + fr'\Requests\{year}_{month:02d}_ivy_requests.csv', index=False)
     jobs_all = jobs_all.set_index('Title') # set index so next iteration works
     s += 1
     print('\n'+f'Finished {site_name}!')
 
     #break
 
-print ('\nDURN!')
-
-# %% create single file with all site ranks
+# create single file with all site ranks
 
 ivy_all = pd.DataFrame(columns=['Restaurant','Keyword','Device','BaseRank'])
 
-for filename in os.listdir(fr'L:\Commercial\Operations\Technical SEO\Automation\Data\STAT\The Ivy Restaurants\Exports\{year}_{month:02d}_ivy_restaurants'):
+for filename in os.listdir(os.path.join(ivy_path, fr'Exports\{year}_{month:02d}_ivy_restaurants\Data')):
     if filename.endswith('.csv'):
         print(f'Getting {filename}')
-        df = pd.read_csv(fr'L:\Commercial\Operations\Technical SEO\Automation\Data\STAT\The Ivy Restaurants\Exports\{year}_{month:02d}_ivy_restaurants\{filename}')
+        df = pd.read_csv(os.path.join(ivy_path, fr'Exports\{year}_{month:02d}_ivy_restaurants\Data\{filename}'))
         ivy_all = ivy_all.append(df)
         print(f'{filename} appended!')
     else:
         continue
 
 print('Saving...')
-ivy_all.to_csv(fr'L:\Commercial\Operations\Technical SEO\Automation\Data\STAT\The Ivy Restaurants\Exports\{year}_{month:02d}_ivy_restaurants\{year}_{month:02d}__ivy_all.csv', index=False)
+ivy_all.to_csv(os.path.join(teams_path, fr'{year}_{month:02d}_ivy_all.csv'), index=False)
+ivy_all.to_csv(os.path.join(ivy_path, fr'Exports\{year}_{month:02d}_ivy_restaurants\{year}_{month:02d}_ivy_all.csv'), index=False)
+
+
 print('\nDURN!')
 
-
-
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-#
-# the stuff below is not required for the job, but can be used in the case there's an error in its execution
-#
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-
-
-
 #%%
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+#                                                           #
+#        the stuff below is not required for the job,       #
+#        but can be used in the case there's an error       #
+#                   in its execution                        #
+#                                                           #
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+
+##%
+
 jobs_all = jobs_all.drop(columns=['Status'])
 jobs_all = jobs_all.reset_index()
-jobs_all.to_csv(fr'L:\Commercial\Operations\Technical SEO\Automation\Data\STAT\The Ivy Restaurants\Requests\{year}_{month:02d}_ivy_requests.csv', index=False)
+jobs_all.to_csv(os.path.join(ivy_path, fr'Requests\{year}_{month:02d}_ivy_requests.csv'), index=False)
 
 jobs_all = jobs_all.drop(columns=['Unnamed: 0'])
 #%%
+
 not_ranking = 120
 ranks_month_df = pd.read_csv(fr'L:\Commercial\Operations\Technical SEO\Automation\Data\STAT\The Ivy Restaurants\Exports\{year}_{month:02d}_ivy_restaurants\{year}_{month:02d}_{save_name}.csv')
 ranks_month_df[['Rank','BaseRank']] = ranks_month_df[['Rank','BaseRank']].replace(to_replace=[None], value=not_ranking)
@@ -187,3 +227,10 @@ ranks_month_df.to_csv(fr'L:\Commercial\Operations\Technical SEO\Automation\Data\
 
 ranks_day_df.to_csv(fr'L:\Commercial\Operations\Technical SEO\Automation\Data\STAT\The Ivy Restaurants\Exports\tester.csv', index=False)
 jobs_all.to_csv
+
+#%%
+
+jobs_all = jobs_all.drop(columns=['index'])
+# %%
+
+# %%

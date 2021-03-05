@@ -1,5 +1,4 @@
-#%%
-# # autogui.py
+#%% autogui.py
 
 import time
 import random

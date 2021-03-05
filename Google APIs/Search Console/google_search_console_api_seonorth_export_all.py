@@ -96,7 +96,7 @@ request_counter = 0 # stat requests counter
 
 CLIENT_SECRETS_PATH = r'C:\Users\JLee35\OneDrive - Dentsu Aegis Network\CURRENT PROJECTS\Python\APIs\keys\iprospectseonorth\OAuth2\credentials.json'
 WEBMASTER_CREDS_DAT = r'C:\Users\JLee35\OneDrive - Dentsu Aegis Network\CURRENT PROJECTS\Python\APIs\keys\iprospectseonorth\OAuth2\webmaster_credentials.dat'
-SCOPES = ['https://www.googleapis.com/auth/webmasters.readonly'] 
+SCOPES = ['https://www.googleapis.com/auth/webmasters.readonly']
 
 # =============================================================================
 # AUTHENTICATE
@@ -162,6 +162,7 @@ for i in site_list.index:
         historical_ctr = ''
         historical_position = ''
         pass
+
     for date in pd.date_range(start=start_date, end=end_date):
         date = date.strftime('%Y-%m-%d')
         try:
@@ -221,7 +222,7 @@ for i in site_list.index:
         #Add response to dataframe response
 
         df = pd.DataFrame(data = sc_dict)
-        print('Filtering results...')        
+        print('Filtering results...')
         df['clicks'] = df['clicks'].astype('int')
         df['ctr'] = df['ctr']*100
         df['impressions'] = df['impressions'].astype('int')

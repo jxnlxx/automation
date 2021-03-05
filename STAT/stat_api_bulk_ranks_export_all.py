@@ -159,8 +159,7 @@ new_sites = []
 
 for index, row in jobs_head.iterrows(): # this construction allows us to go across rows rather than down, like with 'for i in jobs_head.index'
     site_url = index
-    save_name = site_url.replace('/','_') # Remove slashes so file will save/load properly
-    save_name = site_url.replace('-','_') # Remove slashes so file will save/load properly   
+    save_name = site_url.replace('/','_').replace('-','_') # Remove slashes so file will save/load properly
     print('\n'+f'Checking for existing data for {site_url}...')
 
 #%% Load Templates

@@ -79,28 +79,6 @@ L:\Commercial\Operations\Technical SEO\Automation\Setup
 current name of file is stat_api_sites_all.csv
 '''
 
-# =============================================================================
-# SETTINGS
-# =============================================================================
-
-date = '2020-06-02'
-from_date = '2020-05-01'
-to_date = '2020-05-30'
-
-year = 2020
-month = 2
-
-days_in_month = monthrange(year,month)[1]
-
-
-#set a delay
-minute = 60
-sleep_timer = minute*20
-
-# replace keyword rank when not ranking with number
-not_ranking = 120
-
-#client_base = f'{client} Daily Ranks {month:02d}'
 
 
 # =============================================================================

@@ -2,16 +2,21 @@
 
 
 #%%
-from bcr_api.bwproject import BWProject, BWUser
-from bcr_api.bwresources import BWQueries, BWGroups, BWAuthorLists, BWSiteLists, BWLocationLists, BWTags, BWCategories, BWRules, BWMentions, BWSignals
-import io
 import os
 import time
 import logging
 import calendar
 import pandas as pd
 import datetime as dt
+from bcr_api.bwproject import BWProject
+from bcr_api.bwresources import BWQueries
 from operator import itemgetter, attrgetter
+
+# file paths
+
+brandwatch_path = fr'K:\Investment\iProspect\Social Media\15. Brandwatch Reporting'
+
+# dates
 
 date = dt.date.today().replace(day=1) - dt.timedelta(days=1)
 
@@ -33,13 +38,14 @@ logger = logging.getLogger("bcr_api")
 
 #%%
 
+save_path = fr'C:\Users\JLee35\dentsu\iProspect Hub - Documents\Channels\Social Media\Organic Social & Influencers\Product\Organic Social\Brandwatch Automation\Hammerson'
 try:
-    queries_list = pd.read_csv(fr'K:\Investment\iProspect\Social Media\15. Brandwatch Reporting\Hammerson\{year}\Brandwatch Report {save_date}.csv')
+    queries_list = pd.read_csv(fr'C:\Users\JLee35\dentsu\iProspect Hub - Documents\Channels\Social Media\Organic Social & Influencers\Product\Organic Social\Brandwatch Automation\Hammerson\{year}\Brandwatch Report {save_date}.csv')
 except FileNotFoundError:
-    queries_list = pd.read_csv(r'K:\Investment\iProspect\Social Media\15. Brandwatch Reporting\Hammerson\Brandwatch Report Template.csv')
-    if not os.path.exists(fr'K:\Investment\iProspect\Social Media\15. Brandwatch Reporting\Hammerson\{year}'):
-        os.mkdir(fr'K:\Investment\iProspect\Social Media\15. Brandwatch Reporting\Hammerson\{year}')
-    queries_list.to_csv(fr'K:\Investment\iProspect\Social Media\15. Brandwatch Reporting\Hammerson\{year}\Brandwatch Report {save_date}.csv', index=False)
+    queries_list = pd.read_csv(r'C:\Users\JLee35\dentsu\iProspect Hub - Documents\Channels\Social Media\Organic Social & Influencers\Product\Organic Social\Brandwatch Automation\Hammerson\Brandwatch Report Template.csv')
+    if not os.path.exists(fr'C:\Users\JLee35\dentsu\iProspect Hub - Documents\Channels\Social Media\Organic Social & Influencers\Product\Organic Social\Brandwatch Automation\Hammerson\{year}'):
+        os.mkdir(fr'C:\Users\JLee35\dentsu\iProspect Hub - Documents\Channels\Social Media\Organic Social & Influencers\Product\Organic Social\Brandwatch Automation\Hammerson\{year}')
+    queries_list.to_csv(fr'C:\Users\JLee35\dentsu\iProspect Hub - Documents\Channels\Social Media\Organic Social & Influencers\Product\Organic Social\Brandwatch Automation\Hammerson\{year}\Brandwatch Report {save_date}.csv', index=False)
 
 queries_index = queries_list[~queries_list['Status'].isin(['Done'])]
 
@@ -74,7 +80,7 @@ for i in queries_index.index:
                     pageSize=5000,)
     except KeyError:
         queries_list['Status'][i] = 'Done'
-        queries_list.to_csv(fr'K:\Investment\iProspect\Social Media\15. Brandwatch Reporting\Hammerson\{year}\Brandwatch Report {save_date}.csv', index=False)
+        queries_list.to_csv(fr'C:\Users\JLee35\dentsu\iProspect Hub - Documents\Channels\Social Media\Organic Social & Influencers\Product\Organic Social\Brandwatch Automation\Hammerson\{year}\Brandwatch Report {save_date}.csv', index=False)
         print('\nToo many requests. \nSleeping for 10 mins...')
         while n <= 20:
             print(n*30, 'secs')
@@ -106,7 +112,7 @@ for i in queries_index.index:
         queries_list['Top Source (%)'][i] = 'n/a'
 
     queries_list['Status'][i] = 'Done'
-    queries_list.to_csv(fr'K:\Investment\iProspect\Social Media\15. Brandwatch Reporting\Hammerson\{year}\Brandwatch Report {save_date}.csv', index=False)
+    queries_list.to_csv(fr'C:\Users\JLee35\dentsu\iProspect Hub - Documents\Channels\Social Media\Organic Social & Influencers\Product\Organic Social\Brandwatch Automation\Hammerson\{year}\Brandwatch Report {save_date}.csv', index=False)
 
     print(f'\nFinished {i+1} of {len(queries_list)}')
 
@@ -126,6 +132,7 @@ for i in queries_index.index:
         pass
 
 #%%
+
 queries_list = pd.read_csv(fr'K:\Investment\iProspect\Social Media\15. Brandwatch Reporting\Hammerson\{year}\Brandwatch Report {save_date}.csv')
 
 mentions_sum = int(queries_list['Total Mentions'].sum())

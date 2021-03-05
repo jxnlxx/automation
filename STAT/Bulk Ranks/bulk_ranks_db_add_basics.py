@@ -12,9 +12,6 @@ import xlsxwriter as xl
 from getstat import stat_subdomain, stat_key, stat_base_url                     # saved locally in C:\Users\USERNAME\AppData\Local\Programs\Python\Python37-32\Lib
 
 
-
-
-
 date = '2018-12-31' #monday
 
 print('\n'+'Requesting Site List from STAT...')

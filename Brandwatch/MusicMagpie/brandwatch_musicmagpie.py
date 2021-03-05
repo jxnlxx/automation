@@ -1,7 +1,5 @@
-#brandwatch.py
+#%% brandwatch_musicmagpie.py
 
-
-#%%
 from bcr_api.bwproject import BWProject, BWUser
 from bcr_api.bwresources import BWQueries, BWGroups, BWAuthorLists, BWSiteLists, BWLocationLists, BWTags, BWCategories, BWRules, BWMentions, BWSignals
 import datetime

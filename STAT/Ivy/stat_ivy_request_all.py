@@ -14,16 +14,29 @@ from calendar import monthrange
 from getstat import stat_subdomain, stat_key, stat_base_url
 
 # dates
+# TODO adjust dates etc...
 
 date = dt.date.today().replace(day = 1) - dt.timedelta(days = 1)
 year = int(date.strftime('%Y'))
 month = int(date.strftime('%m'))
 days = int(date.strftime('%d'))
 start_date = f'{year}-{month:02d}-01'
-
 cutoff = f'{year}-{month:02d}-{days:02d}'
 
-# get ivy sites list
+# # Custom Date range - just enter last date in month as 'date'
+# date = '2020-11-30'
+# date = dt.datetime.strptime(date, '%Y-%m-%d')
+# year = int(date.strftime('%Y'))
+# month = int(date.strftime('%m'))
+# days = int(date.strftime('%d'))
+# start_date = f'{year}-{month:02d}-01'
+# cutoff = f'{year}-{month:02d}-{days:02d}'
+
+# file locations
+
+ivy_path = fr'C:\Users\JLee35\dentsu\iProspect Hub - Documents\Channels\Owned & Earned\Automation\STAT\The Ivy Restaurants'
+
+#%% get ivy sites list
 
 url = f'{stat_base_url}/sites/list?project_id=475&format=json'
 response = requests.get(url)
@@ -76,7 +89,7 @@ for date in pd.date_range(start=start_date, end=cutoff):
 
 # save job_ids to csv
 
-all_jobs.to_csv(fr'L:\Commercial\Operations\Technical SEO\Automation\Data\STAT\The Ivy Restaurants\Requests\{year}_{month:02d}_ivy_requests.csv', index = False)
+all_jobs.to_csv(ivy_path + fr'\Requests\{year}_{month:02d}_ivy_requests.csv', index = False)
 
 ivy_title = ivy_sites[['Title','Url']]
 all_jobs_plus = all_jobs.merge(ivy_title, on='Title', how='left')
@@ -84,7 +97,7 @@ all_jobs_plus = all_jobs.merge(ivy_title, on='Title', how='left')
 all_jobs_plus = all_jobs_plus.set_index('Title')
 all_jobs_plus = all_jobs_plus.reset_index()
 all_jobs_plus = all_jobs_plus.drop(columns=['Url'])
-all_jobs_plus.to_csv(fr'L:\Commercial\Operations\Technical SEO\Automation\Data\STAT\The Ivy Restaurants\Requests\{year}_{month:02d}_ivy_requests.csv', index = False)
+all_jobs_plus.to_csv(ivy_path + fr'\Requests\{year}_{month:02d}_ivy_requests.csv', index = False)
 
 
 print('DURN!')

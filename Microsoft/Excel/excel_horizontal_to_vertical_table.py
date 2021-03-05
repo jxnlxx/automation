@@ -27,6 +27,5 @@ print('\nSaving...')
 df_all.to_csv(fr'L:\Commercial\Operations\Technical SEO\Automation\Data\STAT\Trainline\export_rankings_IT_amalgamated.csv', index=False)
 
 print('\nDURN!')
-# %%
 
 # %%
