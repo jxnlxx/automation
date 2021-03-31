@@ -29,8 +29,8 @@ start_time = dt.datetime.now().replace(microsecond=0)
 
 # file paths
 
-templates_path = fr'C:\Users\JLee35\dentsu\iProspect Hub - Documents\Channels\Owned & Earned\Automation\STAT\Tech Healthchecks\Templates'
-logos_path = fr'C:\Users\JLee35\dentsu\iProspect Hub - Documents\Channels\Owned & Earned\Automation\STAT\Tech Healthchecks\Branding'
+templates_path = fr'C:\Users\JLee35\dentsu\iProspect Hub - Documents\Channels\Owned & Earned\Automation\Deepcrawl\Tech Healthchecks\Data\Templates'
+logos_path = fr'C:\Users\JLee35\dentsu\iProspect Hub - Documents\Channels\Owned & Earned\Automation\Deepcrawl\Tech Healthchecks\Data\Branding'
 teams_path = fr'C:\Users\JLee35\dentsu\Monthly Healthchecks - Documents\General\Monthly Healthchecks'
 
 # create dates

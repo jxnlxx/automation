@@ -45,7 +45,7 @@ print('\n'+'Welcome to the Google Search Console Site Data Export script!'
 
 davids_law1 = int(dt.datetime.today().strftime('%Y')) - 1
 davids_law2 = int(dt.datetime.today().strftime('%Y'))
-  
+
 print('\n'+'Which year would you like to run reports for?')
 while True:
     try:
@@ -55,7 +55,7 @@ while True:
         else:
             break
     except ValueError:
-        print('Invalid response.')    
+        print('Invalid response.')
 
 if year == davids_law1:
     davids_law3 = int(dt.datetime.today().strftime('%m'))-3
@@ -113,9 +113,9 @@ end_date = f'{year}-{month:02d}-{days:02d}'
 # API SECRETS
 # =============================================================================
 
-CLIENT_SECRETS_PATH = r'C:\Users\JLee35\OneDrive - Dentsu Aegis Network\CURRENT PROJECTS\Python\APIs\keys\iprospectseonorth\OAuth2\credentials.json'
-WEBMASTER_CREDS_DAT = r'C:\Users\JLee35\OneDrive - Dentsu Aegis Network\CURRENT PROJECTS\Python\APIs\keys\iprospectseonorth\OAuth2\webmaster_credentials.dat'
-SCOPES = ['https://www.googleapis.com/auth/webmasters.readonly'] 
+CLIENT_SECRETS_PATH = r'C:\Users\JLee35\OneDrive - Dentsu Aegis Network\PROJECTS\Python\APIs\keys\iprospectseonorth\OAuth2\credentials.json'
+WEBMASTER_CREDS_DAT = r'C:\Users\JLee35\OneDrive - Dentsu Aegis Network\PROJECTS\Python\APIs\keys\iprospectseonorth\OAuth2\webmaster_credentials.dat'
+SCOPES = ['https://www.googleapis.com/auth/webmasters.readonly']
 
 # =============================================================================
 # AUTHENTICATE
@@ -126,17 +126,17 @@ parser = argparse.ArgumentParser(
     formatter_class=argparse.RawDescriptionHelpFormatter,
     parents=[tools.argparser])
 flags = parser.parse_args([])
- 
+
 flow = client.flow_from_clientsecrets(
     CLIENT_SECRETS_PATH, scope = SCOPES,
-    message = tools.message_if_missing(CLIENT_SECRETS_PATH))
- 
+    message=tools.message_if_missing(CLIENT_SECRETS_PATH))
+
 # Prepare credentials and authorize HTTP
 # If they exist, get them from the storage object
 # credentials will get written back to a file.
 storage = file.Storage(WEBMASTER_CREDS_DAT)
 credentials = storage.get()
- 
+
 # If authenticated credentials don't exist, open Browser to authenticate
 if credentials is None or credentials.invalid:
     credentials = tools.run_flow(flow, storage, flags)
@@ -158,7 +158,7 @@ site_list = pd.DataFrame.from_records(site_list)
 for i in site_list.index:
     site_url = site_list['siteUrl'][i]
     site_name = site_url.replace('/','_') # Remove slashes so file will save/load properly
-    site_name = site_name.replace(':','_') # Remove slashes so file will save/load properly      
+    site_name = site_name.replace(':','_') # Remove slashes so file will save/load properly
     print(f'Getting data for {site_url}')
 
     try:

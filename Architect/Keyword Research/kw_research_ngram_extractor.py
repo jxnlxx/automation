@@ -5,11 +5,11 @@ Created on Tue Mar 24 13:44:47 2020
 @author: JLee35
 '''
 
-import pandas as pd
 import re
 import nltk
-import collections
 import datetime
+import collections
+import pandas as pd
 import tkinter as tk
 from nltk.corpus import stopwords
 
@@ -31,12 +31,17 @@ else:
 
 # convert column names to lower case
 kw_list.columns = kw_list.columns.str.lower()
+kw_list['keyword'] = kw_list['keyword'].astype(str)
 
-# # remove n-gram isomers
-# print('Removing keyword isomers...')
-# kw_list['isomers'] = [', '.join(sorted(row.split(), key=str.lower)) for row in kw_list['keyword']]
-# kw_list = kw_list.drop_duplicates(subset = ['search volume', 'isomers'], keep='first')
-# kw_list = kw_list.drop(labels='isomers', axis=1)
+# replace instances of '+' with 'plus' so find_total_search_volume() works later (issues with to regex search)
+kw_list['keyword'] = kw_list['keyword'].str.replace("  "," ")
+kw_list['keyword'] = kw_list['keyword'].str.strip()
+
+#save edited kw_list
+if filename.endswith('.csv'):
+    kw_list.to_csv(fr'{filename}')
+elif filename.endswith(('.xls','.xlsx')):
+    kw_list.to_excel(fr'{filename}')
 
 print('Getting Phrases')
 list_of_keywords = list(filter(None, kw_list.keyword.tolist()))
@@ -52,7 +57,7 @@ for phrase in list_of_phrases:
     phrase_counts.update(nltk.ngrams(phrase, 4)) # quadrigrams
 
 print('Filtering for Most Common Phrases')
-top_phrases = phrase_counts.most_common(10000)
+top_phrases = phrase_counts.most_common(50000)
 top_phrases = pd.DataFrame(top_phrases, columns=['keyword', 'count'])
 top_phrases = top_phrases[top_phrases['keyword'] != 'nan']
 
@@ -61,30 +66,30 @@ def fix_those_brackets(keyword):
     fixed_keyword = ' '.join(keyword)
     return fixed_keyword
 
-# Now we're not writing our function any more (you can tell because of the indent)
-top_phrases['keyword'] = top_phrases.keyword.apply(lambda keyword: fix_those_brackets(keyword))
+top_phrases['keyword'] = top_phrases.keyword.apply(lambda keyword: fix_those_brackets(keyword)).astype(str)
 
 # Remove keyword that are in our list of stopwords
 stop = stopwords.words('english')
 top_phrases = top_phrases[~top_phrases['keyword'].isin(stop)]
+top_phrases = top_phrases.reset_index(drop=True)
+top_phrases = top_phrases.head(10000)
 
 print('Aggregating Search Volumes')
 print('(This may take a while...)')
 
 def find_total_search_volume(keyword, original_keyword_data, keyword_column, search_volume_column):
 
-#     Here we just create a copy of our original keyword data, so we don't accidentally overwrite it
+#     Print keyword to show
+    print(keyword)
+#     create a copy of our original keyword data, so we don't accidentally overwrite it
     keyword_data_copy = original_keyword_data.copy(deep=True)
-
-#     This whole bit is to make sure the search volume is always a number and handle times when the tool we used doesn't have
-#     search volume data for the keyword
+#     ensure search volume is always a number and handle times when we don't have volume data for the keyword
     keyword_data_copy[search_volume_column] = pd.to_numeric(keyword_data_copy[search_volume_column], errors='coerce')
     keyword_data_copy[search_volume_column] = keyword_data_copy[search_volume_column].fillna(0)
     keyword_data_copy[search_volume_column] = keyword_data_copy[search_volume_column].astype(int)
 
-#     This is exactly the same as the 'str.contains' check we looked at before - for each keyword in our top_200 list we'll
-#     check what rows in our original keyword data contain that keyword
-    keyword_data_copy['contains_keyword?'] = keyword_data_copy[keyword_column].str.contains(keyword)
+#     for each keyword, check what rows in our original keyword data contain that keyword
+    keyword_data_copy['contains_keyword?'] = keyword_data_copy[keyword_column].str.contains(re.escape(keyword))
 
 #    filter rows in our original keyword data containing particular keyword we're looking at
     keyword_data_copy = keyword_data_copy[(keyword_data_copy['contains_keyword?'] == True)]
@@ -112,5 +117,9 @@ savename = tk.filedialog.asksaveasfilename(title='Save File',  defaultextension=
 root.destroy()
 top_phrases.to_excel(fr'{savename}', index=False)
 
-print('DURN!')
+print('\nDURN!')
+# %%
+
+
+kw_list.to_csv(fr'C:\Users\JLee35\dentsu\iProspect Hub - Documents\Channels\Owned & Earned\Automation\Architect\Keyword Research\Data\USwitch\uswitch_kw_research_plus_removed.csv',index=False)
 # %%

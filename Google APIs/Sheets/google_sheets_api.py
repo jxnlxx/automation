@@ -1,56 +1,30 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Tue Apr 21 09:49:56 2020
-
-@author: JLee35
-"""
 
 import gspread
 import gspread_formatting
-import pandas as pd
 from gspread_dataframe import get_as_dataframe, set_with_dataframe
 from oauth2client.service_account import ServiceAccountCredentials
 from googleapiclient import discovery
-from uuid import uuid4
 
-
-
-#####
-gspread_id = '1H3qkPyGolEbq3pMpHYEWEb0kZkudy6mnbJT90L2kl1k'
-gsheet_name = 'STAT Automation'
-#file_name = 'STAT API Master'
-#NUMBERCOLS = <NUMBER OF COLS TO READ>
-
-#####
-
+worksheet = "FILE ON GOOGLE DRIVE TO READ"
+SHEETNAME = "SHEET NAME"
+NUMBERCOLS = "NUMBER OF COLS TO READ"
+json_creds = r"location of google auth json creds file"
 
 scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
-google_auth = r'C:\Users\JLee35\OneDrive - Dentsu Aegis Network\CURRENT PROJECTS\Python\APIs\keys\iprospectseonorth\google_auth.json'
-creds = ServiceAccountCredentials.from_json_keyfile_name( google_auth, scope )
+creds = ServiceAccountCredentials.from_json_keyfile_name(json_creds, scope)
 client = gspread.authorize(creds)
-sheet = client.open_by_key(gspread_id)
-worksheet = sheet.worksheet(gsheet_name)
-# load data to dataframe from gsheet
-df = get_as_dataframe(sheet.worksheet(gsheet_name), parse_dates=True)# usecols=range(0, NUMBERCOLS))
-print(df)
+sheet = client.open(FILENAME)
 
-for i in df.index:
-    uuid = uuid4()
-    df['ClientId'][i] = uuid
+df = get_as_dataframe(sheet.worksheet(SHEETNAME), parse_dates=True, usecols=range(0, NUMBERCOLS))
 
-print(df)
-
-#worksheet.clear()
-
-#sheet.add_worksheet(Sheet3)
-
-# clear gsheet ready for adding new data
-#sheet.values_clear( '{0}!A:AZ'.format(gsheet_name) )
-
-# save data to gsheet from dataframe
-set_with_dataframe(sheet.worksheet(gsheet_name), df)
+#DO STUFF HERE
 
 
-# Extract and print all of the values
-#list_of_hashes = sheet.get_all_records()
-#(list_of_hashes)
+try:
+    worksheet = sheet.worksheet(SHEETNAME)
+    worksheet.clear()
+except gspread.exceptions.WorksheetNotFound as err:
+    worksheet = sheet.add_worksheet(title=SHEETNAME, rows=1, cols=1)
+
+
+set_with_dataframe(sheet.worksheet(SHEETNAME), df)

@@ -35,12 +35,14 @@ def fix_those_brackets(keyword):
     fixed_keyword = ' '.join(keyword)
     return fixed_keyword
 
+root = r"C:\Users\JLee35\dentsu\iProspect Hub - Documents\Channels\Owned & Earned\Automation\Microsoft\Word\Data\Erica's Project"
+input_dir = "Input"
+output_dir = "Output"
 
-for filename in os.listdir(r"C:\Users\JLee35\dentsu\iProspect Hub - Documents\Channels\Owned & Earned\Automation\Microsoft\Word\Data\Erica's Project\Input"):
+for filename in os.listdir(os.path.join(root,input_dir)):
     if filename.endswith(".docx"):
-        save_name = filename
-        save_name = save_name.replace('.docx','')
-        doc = getText(fr"C:\Users\JLee35\dentsu\iProspect Hub - Documents\Channels\Owned & Earned\Automation\Microsoft\Word\Data\Erica's Project\Input\{filename}")
+        save_name = filename.replace('.docx','.csv')
+        doc = getText(os.path.join(root,input_dir,filename))
 
         all_ngrams = pd.DataFrame(columns=['word','count'])
 
@@ -71,6 +73,7 @@ for filename in os.listdir(r"C:\Users\JLee35\dentsu\iProspect Hub - Documents\Ch
         all_ngrams = all_ngrams[~all_ngrams['word'].isin(stop)]
 
         all_ngrams = all_ngrams.sort_values(by='count',ascending=False)
-        all_ngrams.to_csv(fr"C:\Users\JLee35\dentsu\iProspect Hub - Documents\Channels\Owned & Earned\Automation\Microsoft\Word\Data\Erica's Project\Script Output\{save_name}.csv", index=False)
+        all_ngrams.to_csv(os.path.join(root,output_dir,save_name), index=False)
 
+print("\nDURN!")
 # %%

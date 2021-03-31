@@ -19,39 +19,40 @@ for filename in os.listdir(input_dir): # For all files in input directory (must 
             html = result.value # The generated HTML
             messages = result.messages # Any messages, such as warnings during conversion
 
-            html = html.replace("<br /><br />","<p></p>") # Replace variants
+#   replace variants
+            html = html.replace("<br /><br />","</p><p>") # Replace variants
             html = html.replace("<p></p></em>","</em></p><p>") # Replace Variants
             html = html.replace("</em><p></p>","</em></p><p>") # Replace Variants
+            html = html.replace("</p></strong>","</strong></p>") # replace variants
 
-            html = html.replace("</p><ol><li>","</p>\n<ol><li>") # Ad line break after end of paragraph
-            html = html.replace("</li></ol><p>","</li></ol>\n<p>") # Add line break after end of item name
-            html = html.replace("</em></p><p>","</em></p>\n<p>") # Add line break after end of item id
+#   add line breaks
+            html = html.replace("</strong></p><p>","</strong></p>\n<p>") # Add line break after end of product name
+            html = html.replace("</p><p><strong>","</p>\n<p><strong>") # Add line break between product description and product name
+            html = html.replace("</li></ul><p><strong>","</li></ul>\n<p><strong>") # Add line break after list and product name
+            html = html.replace("</em></p><p>","</em></p>\n<p>") # Add line break after end of italics (product sku)
 
-            html = html.replace("<ol><li><strong>", "")  # Remove code from before item name
-            html = html.replace("</strong></li></ol>", "")  # Remove code from end of item name
-            html = html.replace("<ol><li>", "")  # Remove code from before item name
-            html = html.replace("</li></ol>", "")  # Remove code from end of item name
+#   standardise formatting of html
 
-            html = html.replace("<p><em>","") #Remove code from before item id
-            html = html.replace("</em></p>","") # Remove code from after item id
             html = html.replace("\n ","\n") # Remove code from after item id
-            html = html.replace("<em> </em>","") # Remove code from after item id
-            html = html.replace("<br />","") # Remove code from after item id
+            html = html.replace(" </p> ","</p>") # Remove code from after item id
 
             html_split = html.splitlines() # Split the string into list by linebreaks
 
-            df_names = html_split[0::3] # Slice only the item names
-            df_ids = html_split[1::3] # Slice only the item names
-            df_html = html_split[2::3] # Slice only the description html
+            df1 = html_split[0::3] # Slice only the bold text (item names)
+            df_names = []
+            for line in df1:
+                soup = BeautifulSoup(line,'lxml')
+                df_names.append(soup.get_text()) # Append the plain text from df_html
 
+            df2 = html_split[1::3] # Slice only the italic text (item sku)
             df_sku = []
-
-            for line in df_ids:
+            for line in df2:
                 soup = BeautifulSoup(line,'lxml')
                 df_sku.append(soup.get_text()) # Append the plain text from df_html
 
-            df_text = [] # Empty list to add text
+            df_html = html_split[2::3] # Slice only the description html
 
+            df_text = [] # Empty list to strip html from df_html
             for line in df_html:
                 soup = BeautifulSoup(line,'lxml')
                 df_text.append(soup.get_text()) # Append the plain text from df_html
@@ -64,5 +65,7 @@ for filename in os.listdir(input_dir): # For all files in input directory (must 
         print(f'Finished {filename}!')
     else:
         continue
+
+print('DURN!')
 
 # %%

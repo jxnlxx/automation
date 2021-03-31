@@ -38,8 +38,8 @@ backup_month = backup_month.strftime('%Y-%m')
 
 # file paths
 
-templates_path = fr'C:\Users\JLee35\dentsu\iProspect Hub - Documents\Channels\Owned & Earned\Automation\STAT\Tech Healthchecks\Templates'
-logos_path = fr'C:\Users\JLee35\dentsu\iProspect Hub - Documents\Channels\Owned & Earned\Automation\STAT\Tech Healthchecks\Branding'
+templates_path = fr'C:\Users\JLee35\dentsu\iProspect Hub - Documents\Channels\Owned & Earned\Automation\Deepcrawl\Tech Healthchecks\Data\Templates'
+logos_path = fr'C:\Users\JLee35\dentsu\iProspect Hub - Documents\Channels\Owned & Earned\Automation\Deepcrawl\Tech Healthchecks\Data\Branding'
 teams_path = fr'C:\Users\JLee35\dentsu\Monthly Healthchecks - Documents\General\Monthly Healthchecks'
 
 # load google sheets tech seo projects list
@@ -228,7 +228,7 @@ for i in hc_list.index:
     print('- Healthcheck Tab Updated')
 
     # save template
-    writer = pd.ExcelWriter(templates_path + fr'\{client} - Tech Healthcheck Template.xlsx', engine='xlsxwriter')
+    writer = pd.ExcelWriter(templates_path + fr'\{client} - Tech Healthcheck Template.xlsx', engine='xlsxwriter') # pylint: disable=abstract-class-instantiated
     df_data.to_excel(writer, sheet_name = 'Data', index=False)
     df_healthcheck.to_excel(writer, sheet_name = 'Healthcheck', index=False)
 
@@ -400,13 +400,13 @@ for i in hc_list.index:
 
     # insert brand logo
     if brand == 'Carat':
-        ws.insert_image('B2', logos_path + fr'\Branding\Carat Logo.png', {'y_offset':5, 'x_scale':0.13, 'y_scale': 0.13})
+        ws.insert_image('B2', logos_path + fr'\Carat Logo.png', {'y_offset':5, 'x_scale':0.13, 'y_scale': 0.13})
 
     if brand == 'Vizeum':
-        ws.insert_image('B1', logos_path + fr'\Branding\Vizeum Logo.png', {'x_offset':20, 'y_offset':10, 'x_scale':0.4, 'y_scale': 0.4})
+        ws.insert_image('B1', logos_path + fr'\Vizeum Logo.png', {'x_offset':20, 'y_offset':10, 'x_scale':0.4, 'y_scale': 0.4})
 
     if brand not in ['Carat', 'Vizeum']:
-        ws.insert_image('B2', logos_path + fr'\Branding\iPro Logo.png', {'x_scale':0.22, 'y_scale': 0.22})
+        ws.insert_image('B2', logos_path + fr'\iProspect Logo.png', {'x_scale':0.22, 'y_scale': 0.22})
 
     # ADDITIONAL FORMATTING
 

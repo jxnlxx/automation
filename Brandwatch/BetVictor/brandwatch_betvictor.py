@@ -13,13 +13,16 @@ from bcr_api.bwresources import BWQueries
 date = dt.date.today()
 last_year = date - dt.timedelta(weeks=52)
 last_year = last_year.isoformat()
-start = date - dt.timedelta(days=date.weekday(), weeks=1)
-date = start.isoformat()
-end = start + dt.timedelta(days=6)
-start = f'{date}T00:00:01'
-end = f'{end}T23:59:59'
+start_date = date - dt.timedelta(days=date.weekday(), weeks=1)
+date = start_date.isoformat()
+end_date = start_date + dt.timedelta(days=6)
+start_date = f'{date}T00:00:01'
+end_date = f'{end_date}T23:59:59'
 
 #%% brandwatch authentication
+
+start_date = '2020-08-12'
+end_date = '2021-03-20'
 
 logger = logging.getLogger("bcr_api")
 
@@ -32,14 +35,15 @@ name = name.get('name')
 
 # %% retrieve brandwatch queries
 
-save_path = fr'C:\Users\JLee35\dentsu\BetVictor - Documents\Brandwatch'
+root = fr"C:\Users\JLee35\dentsu\BetVictor - Documents\Brandwatch"
 
-brandwatch_queries = pd.read_excel(os.path.join(save_path,'Betvictor - Brandwatch Queries.xlsx'))
+brandwatch_queries = (os.path.join(root,"Betvictor - Brandwatch Queries.xlsx"))
 
 try:
-    queries_list = pd.read_csv(os.path.join(save_path,fr'\Data\{date}_betvictor_mta_manager_queries.csv'))
+    queries_list = pd.read_csv(os.path.join(root,"Data",f"{start_date}_{end_date}_betvictor_brandwatch.csv"))
 except FileNotFoundError:
-    queries_list = brandwatch_queries
+    queries_list = pd.read_excel(brandwatch_queries)
+
 
 queries_index = queries_list[~queries_list['Status'].isin(['Done'])]
 
@@ -64,11 +68,11 @@ for i in queries_index.index:
 
     print(f'\nRequesting query {i+1} of {len(queries_list)}: {query}\n')
     try:
-        filtered = queries.get_mentions(name=name, startDate=start, endDate=end, pageSize=5000, pageType="twitter", language="en")
+        filtered = queries.get_mentions(name=name, startDate=start_date, endDate=end_date, pageSize=5000, pageType="twitter", language="en")
     except KeyError:
 #   if no results, add done
-        queries_list['Status'][i] = 'Done'
-        queries_list.to_csv(os.path.join(save_path,fr'\Data\{date}_betvictor_mta_manager_queries.csv'), index=False)
+        queries_list.at[i, 'Status'] = 'Done'
+        queries_list.to_csv(os.path.join(root,"Data",f"{start_date}_{end_date}_betvictor_brandwatch.csv"), index=False)
         print('Too many requests. \nSleeping for 10 mins...')
         while n <= 20:
             print(n*30, 'secs')
@@ -80,41 +84,41 @@ for i in queries_index.index:
 
     df = df[df['countryCode'].isin(["GBR"])]
 
-    queries_list['Total Mentions'][i] = len(df)
+    queries_list.at[i, 'Total Mentions'] = len(df)
 
     if len(df) > 0:
         df['sentiment'] = df['sentiment'].astype(str)
         sentiment = df[df['sentiment'].isin(['positive','negative'])]
         try:    # remove neutral sentiment, and then calculate percentage of positive and negative as if, when combined, they're 100% of the total.
-            queries_list['Positive Sentiment'][i] = round(len(sentiment[sentiment['sentiment'].str.contains('positive')])/len(sentiment)*100,1)
+            queries_list.at[i, 'Positive Sentiment'] = round(len(sentiment[sentiment['sentiment'].str.contains('positive')])/len(sentiment)*100,1)
         except (KeyError, ZeroDivisionError) as e:
-            queries_list['Positive Sentiment'][i] = 0
+            queries_list.at[i, 'Positive Sentiment'] = 0
         try:    # remove neutral sentiment, and then calculate percentage of positive and negative as if, when combined, they're 100% of the total.
-            queries_list['Negative Sentiment'][i] = round(len(sentiment[sentiment['sentiment'].str.contains('negative')])/len(sentiment)*100,1)
+            queries_list.at[i, 'Negative Sentiment'] = round(len(sentiment[sentiment['sentiment'].str.contains('negative')])/len(sentiment)*100,1)
         except (KeyError, ZeroDivisionError) as e:
-            queries_list['Negative Sentiment'][i] = 0
+            queries_list.at[i, 'Negative Sentiment'] = 0
 
         try:
             df['classifications'] = df['classifications'].astype(str)
             emotions = df[df['classifications'].str.contains("'classifierId': 'emotions'")]
-            queries_list['Joy'][i] = round(len(emotions[emotions['classifications'].str.contains("'name': 'Joy'")])/len(emotions)*100,1)
-            queries_list['Sadness'][i] = round(len(emotions[emotions['classifications'].str.contains("'name': 'Sadness'")])/len(emotions)*100,1)
-            queries_list['Anger'][i] = round(len(emotions[emotions['classifications'].str.contains("'name': 'Anger'")])/len(emotions)*100,1)
-            queries_list['Disgust'][i] = round(len(emotions[emotions['classifications'].str.contains("'name': 'Disgust'")])/len(emotions)*100,1)
-            queries_list['Fear'][i] = round(len(emotions[emotions['classifications'].str.contains("'name': 'Fear'")])/len(emotions)*100,1)
-            queries_list['Surprise'][i] = round(len(emotions[emotions['classifications'].str.contains("'name': 'Surprise'")])/len(emotions)*100,1)
+            queries_list.at[i, 'Joy'] = round(len(emotions[emotions['classifications'].str.contains("'name': 'Joy'")])/len(emotions)*100,1)
+            queries_list.at[i, 'Sadness'] = round(len(emotions[emotions['classifications'].str.contains("'name': 'Sadness'")])/len(emotions)*100,1)
+            queries_list.at[i, 'Anger'] = round(len(emotions[emotions['classifications'].str.contains("'name': 'Anger'")])/len(emotions)*100,1)
+            queries_list.at[i, 'Disgust'] = round(len(emotions[emotions['classifications'].str.contains("'name': 'Disgust'")])/len(emotions)*100,1)
+            queries_list.at[i, 'Fear'] = round(len(emotions[emotions['classifications'].str.contains("'name': 'Fear'")])/len(emotions)*100,1)
+            queries_list.at[i, 'Surprise'] = round(len(emotions[emotions['classifications'].str.contains("'name': 'Surprise'")])/len(emotions)*100,1)
         except (KeyError, ZeroDivisionError) as e:
-            queries_list['Joy'][i] = 0
-            queries_list['Sadness'][i] = 0
-            queries_list['Anger'][i] = 0
-            queries_list['Disgust'][i] = 0
-            queries_list['Fear'][i] = fear = 0
-            queries_list['Surprise'][i] = 0
+            queries_list.at[i, 'Joy'] = 0
+            queries_list.at[i, 'Sadness'] = 0
+            queries_list.at[i, 'Anger'] = 0
+            queries_list.at[i, 'Disgust'] = 0
+            queries_list.at[i, 'Fear'] = fear = 0
+            queries_list.at[i, 'Surprise'] = 0
 
-    queries_list['Status'][i] = 'Done'
+    queries_list.at[i, "Status"] = "Done"
 
-    queries_list.to_csv(os.path.join(save_path,fr'\Data\{date}_betvictor_mta_manager_queries.csv'), index=False)
-    print(f'\nFinished {i+1} of {len(queries_list)}')
+    queries_list.to_csv(os.path.join(root,"Data",f"{start_date}_{end_date}_betvictor_brandwatch.csv"), index=False)
+    print(f"\nFinished {i+1} of {len(queries_list)}")
 
     if len(df) >= 80000:
         print('\nRequests over threshold. \nSleeping for 10 mins...')
@@ -130,7 +134,7 @@ for i in queries_index.index:
             n+=1
     else:
         pass
-#    break
+
 print('\nDURN!')
 
 # %%
