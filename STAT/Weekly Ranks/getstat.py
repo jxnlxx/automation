@@ -1,5 +1,6 @@
-# getstat.py
+#%% getstat.py
 
+import json
 import requests
 import pandas as pd
 import datetime as dt
@@ -71,18 +72,57 @@ def keywords_list(site_id):
     response = requests.get(url)
     response = response.json()
     keywords = response.get("Response").get("Result")
-    n += 1
     while True:
         try:
             nextpage = response.get("Response").get("nextpage")
             url = stat_base_url + nextpage
+            n += 1
             print(n, nextpage)
             response = requests.get(url)
             response = response.json()
             new_kws = response.get("Response").get("Result")
             keywords += new_kws
-            n += 1
         except TypeError:
             break
     return keywords
 
+def get_createdat(site_id):
+    sites_all_url = f"{stat_base_url}/sites/all?&results=5000&format=json"
+    response = requests.get(sites_all_url)
+    response = response.json()
+    created_at = response.get("Response").get("Result")
+    created_at = pd.DataFrame(created_at)
+    created_at = created_at.loc[created_at["Id"] == site_id, "CreatedAt"].iloc[0]
+    return created_at
+
+def bulk_list():
+    # quick request to get the number of results
+    bulk_list = "/bulk/list?results=1&format=json"
+    url = stat_base_url + bulk_list
+    response = requests.get(url)
+    response = response.json()
+    total_results = response.get("Response").get("totalresults")
+    print(f"Total results: {total_results}")
+    # start retrieving results
+    n = 1 # for showing progress through pagination
+    bulk_list = "/bulk/list?results=2000&format=json"
+    url = stat_base_url + bulk_list
+    print(n, bulk_list)
+    response = requests.get(url)
+    response = response.json()
+    jobs_list = response.get("Response").get("Result")
+    while True:
+        try:
+            nextpage = response.get("Response").get("nextpage")
+            url = stat_base_url + nextpage
+            n += 1
+            print(n, nextpage)
+            response = requests.get(url)
+            response = response.json()
+            new_jobs = response.get("Response").get("Result")
+            jobs_list += new_jobs
+        except TypeError:
+            break
+    return jobs_list
+
+# %%
