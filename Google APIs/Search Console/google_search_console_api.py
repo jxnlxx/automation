@@ -32,81 +32,80 @@ from oauth2client import file
 from oauth2client import tools
 from urllib.parse import urlparse
 
-# =============================================================================
-# Introduction
-# =============================================================================
+# #=============================================================================
+# # Introduction
+# # =============================================================================
 
-print('\n'+'Welcome to the Google Search Console Site Data Export script!'
-      '\n'+'This script requests daily clicks, impressions, ctr and position'
-      '\n'+'for all clients in a single, specified month.'
-      '\n'+''
-      '\n'+'Please answer the following questions:')
-
-
-davids_law1 = int(dt.datetime.today().strftime('%Y')) - 1
-davids_law2 = int(dt.datetime.today().strftime('%Y'))
-
-print('\n'+'Which year would you like to run reports for?')
-while True:
-    try:
-        year = int(input(f'Please enter a value between {davids_law1} & {davids_law2} >>> '))
-        if (year < davids_law1) or (year > davids_law2):
-            raise ValueError
-        else:
-            break
-    except ValueError:
-        print('Invalid response.')
-
-if year == davids_law1:
-    davids_law3 = int(dt.datetime.today().strftime('%m'))-3
-    davids_law4 = 12
-elif year == davids_law2:
-    davids_law3 = 1
-    davids_law4 = int(dt.datetime.today().strftime('%m'))
-else:
-    davids_law3 = 1
-    davids_law4 = 12
+# print('\n'+'Welcome to the Google Search Console Site Data Export script!'
+#     '\n'+'This script requests daily clicks, impressions, ctr and position'
+#     '\n'+'for all clients in a single, specified month.'
+#     '\n'+''
+#     '\n'+'Please answer the following questions:')
 
 
-print('\n'+'Which month would you like to run reports for?')
-while True:
-    try: # check if input is within davids_law
-        month = int(input(f'Please enter a value between {davids_law3}-{davids_law4} >>> '))
-        if month < davids_law3 or month > davids_law4: #if not, raise ValueError
-            raise ValueError
-        else: # else create a start_date and an end_date for the month
-            days = monthrange(year,month)[1]
-            start_date = f'{year}-{month:02d}-01'
-            end_date = f'{year}-{month:02d}-{days:02d}'
-            break
-    except ValueError:
-        print('Invalid response. Please try again.')
-    
+# davids_law1 = int(dt.datetime.today().strftime('%Y')) - 1
+# davids_law2 = int(dt.datetime.today().strftime('%Y'))
 
-# =============================================================================
-# START
-# =============================================================================
+# print('\n'+'Which year would you like to run reports for?')
+# while True:
+#     try:
+#         year = int(input(f'Please enter a value between {davids_law1} & {davids_law2} >>> '))
+#         if (year < davids_law1) or (year > davids_law2):
+#             raise ValueError
+#         else:
+#             break
+#     except ValueError:
+#         print('Invalid response.')
 
-start_time = dt.datetime.now().replace(microsecond=0)
-SRC = 0 # stat requests counter
+# if year == davids_law1:
+#     davids_law3 = int(dt.datetime.today().strftime('%m'))-3
+#     davids_law4 = 12
+# elif year == davids_law2:
+#     davids_law3 = 1
+#     davids_law4 = int(dt.datetime.today().strftime('%m'))
+# else:
+#     davids_law3 = 1
+#     davids_law4 = 12
 
-# =============================================================================
-# DATERANGE
-# =============================================================================
+# print('\n'+'Which month would you like to run reports for?')
+# while True:
+#     try: # check if input is within davids_law
+#         month = int(input(f'Please enter a value between {davids_law3}-{davids_law4} >>> '))
+#         if month < davids_law3 or month > davids_law4: #if not, raise ValueError
+#             raise ValueError
+#         else: # else create a start_date and an end_date for the month
+#             days = monthrange(year,month)[1]
+#             start_date = f'{year}-{month:02d}-01'
+#             end_date = f'{year}-{month:02d}-{days:02d}'
+#             break
+#     except ValueError:
+#         print('Invalid response. Please try again.')
 
-year = 2019
-month= 3
+
+# # =============================================================================
+# # START
+# # =============================================================================
+
+# start_time = dt.datetime.now().replace(microsecond=0)
+# SRC = 0 # stat requests counter
+
+# # =============================================================================
+# # DATERANGE
+# # =============================================================================
+
+# year = 2019
+# month= 3
 
 
-days = monthrange(year,month)[1]
-# this calculates the date for n days ago
-start_date = f'{year}-{month:02d}-01'
-end_date = f'{year}-{month:02d}-{days:02d}'
+# days = monthrange(year,month)[1]
+# # this calculates the date for n days ago
+# start_date = f'{year}-{month:02d}-01'
+# end_date = f'{year}-{month:02d}-{days:02d}'
 
 
-# or you can hash out the above and set the date range manually
-#start_date = '2020-01-01'
-#end_date = '2020-01-01'
+# # or you can hash out the above and set the date range manually
+# #start_date = '2020-01-01'
+# #end_date = '2020-01-01'
 
 
 # =============================================================================
@@ -152,7 +151,7 @@ site_list = site_list.get('siteEntry')
 site_list = pd.DataFrame.from_records(site_list)
 #site_list.to_csv( r'L:\Commercial\Operations\Technical SEO\Automation\Google API\Search Console\Data\Setup\search_console_site_list.csv', index=False )
 
-#site_list = site_list.head(2) # limits number of sites for testing
+#%%site_list = site_list.head(2) # limits number of sites for testing
 
 # Iterate through site_list and get data for each client
 for i in site_list.index:

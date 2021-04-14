@@ -17,7 +17,7 @@ print("Done!")
 
 #%% filter client_list
 
-folder_name = "The Ivy Restaurants"
+folder_name = "Toolstation"
 client_list = client_list[client_list["Folder Name"] == folder_name]
 
 #%% add keywords
@@ -75,7 +75,7 @@ for i in client_list.index:
         UNIQUE (StatID)
         );""")
 
-    df = pd.read_csv(os.path.join(root,folder_name,f"{save_name}_keyword_list.csv"))
+    df = pd.read_csv(os.path.join(root,folder_name,"Setup",f"{save_name}_keywords_list.csv"))
     df = df.fillna("")
 
     for j in df.index:

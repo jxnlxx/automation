@@ -17,7 +17,7 @@ print("Done!")
 
 #%%
 
-folder_name = "Entertainment Magpie"
+folder_name = "Toolstation"
 client_list = client_list[client_list["Folder Name"] == folder_name]
 
 #%% request exports for all clients

@@ -17,73 +17,6 @@ from urllib.parse import urlparse
 from collections import defaultdict
 from getstat import stat_subdomain, stat_key                                    # saved locally in C:\Users\USERNAME\AppData\Local\Programs\Python\Python37-32\Lib
 
-'''
-DETAILS
-
-This request returns all sites saved under your account.
-
-The output contains general info about each site, but no keyword data.
-
-Important information includes:
-    'SiteId': a unique identifier for each site under 'Id' in response,
-    'Tracking (TRUE or FALSE): whether the site currently has active keyword tracking,
-    'RequestUrl': a path to append to 'base_url' for requesting keywords/list
-
-JSON request URL:
-    /sites/all?[start={start}][&results={results}&]format=json
-
-JSON typical response:
-
-{ 
-   "Response":{ 
-      "responsecode":"200",
-      "totalresults":"100",
-      "resultsreturned":"50",
-      "nextpage":"/sites/all?start=50&format=json",
-      "Result":[ 
-         { 
-            "Id":"1",
-            "ProjectId":"13",
-            "FolderId":"22",
-            "FolderName":"Blog",
-            "Title":"tourismvancouver.com",
-            "Url":"tourismvancouver.com",
-            "Synced":"N/A",
-            "TotalKeywords":"63",
-            "CreatedAt":"2011-01-25",
-            "UpdatedAt":"2011-01-25",
-            "RequestUrl":"/keywords/list?site_id=1&format=json"
-         },
-         { 
-            "Id":"2",
-            "ProjectId":"13",
-            "FolderId":"N/A",
-            "FolderName":"N/A",
-            "Title":"perezhilton.com",
-            "Url":"perezhilton.com",
-            "Synced":"1",
-            "TotalKeywords":"63",
-            "CreatedAt":"2011-01-25",
-            "UpdatedAt":"2011-01-25",
-            "RequestUrl":"/keywords/list?site_id=2&format=json"
-         },
-         ...
-      ]
-   }
-}
-
-
-The output is a CSV file saved in this folder:
-L:\Commercial\Operations\Technical SEO\Automation\Setup
-
-current name of file is stat_api_sites_all.csv
-'''
-
-
-
-# =============================================================================
-# SCRIPT
-# =============================================================================
 
 base_url = f'https://{stat_subdomain}.getstat.com/api/v2/{stat_key}'
 
@@ -106,7 +39,7 @@ site_list = pd.DataFrame(site_list)
 
 print('\n'+'Exporting data...')
 
-site_list.to_csv(r'C:\Users\JLee35\Automation\STAT\stat_api_sites_all.csv', index = False)
+site_list.to_csv(r'C:\Users\JLee35\dentsu\iProspect Hub - Documents\Channels\Owned & Earned\Automation\STAT\stat_api_sites_all.csv', index = False)
 
 print('\n'+'DURN!')
 # %%

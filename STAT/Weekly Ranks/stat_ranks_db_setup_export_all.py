@@ -19,12 +19,9 @@ print("Done!")
 
 #%%
 
-folder_name = "The Ivy Restaurants"
+folder_name = "Toolstation"
 client_list = client_list[client_list["Folder Name"] == folder_name]
 
-#%%
-
-client_list = client_list.head(20)
 #%%
 
 start_time = dt.datetime.now().strftime("%H:%M:%S")
@@ -247,7 +244,7 @@ for i in client_list.index:
                 cur.execute("SELECT Id FROM RankingUrl WHERE Url = ? LIMIT 1", (RankingUrl,))
                 RankingUrlId = int(cur.fetchone()[0])
 
-            cur.execute(f"""INSERT OR IGNORE INTO Ranks_{save_name}(Date, KeywordId, Rank, BaseRank, RankingUrlId)
+            cur.execute(f"""INSERT OR IGNORE INTO RanksDaily_{save_name}(Date, KeywordId, Rank, BaseRank, RankingUrlId)
                         VALUES (?, ?, ?, ?, ?)""", (Date, KeywordId, Rank, BaseRank, RankingUrlId,))
 
             cur.execute(f"UPDATE requests_{save_name} SET Status = ? WHERE JobId = ?", (1, job_id,))

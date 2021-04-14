@@ -33,9 +33,8 @@ print('Done!')
 
 #%% filter client list
 
-folder_name = 'N Brown'
+folder_name = 'Toolstation'
 client_list = client_list[client_list['Folder Name'] == folder_name]
-
 
 #%% create ctr table in db
 
@@ -59,7 +58,7 @@ for i in client_list.index:
         CTR REAL NOT NULL,
         UNIQUE (Position)
         );''')
-    df = pd.read_csv(os.path.join(root,folder_name,f'{save_name}_ctr.csv'))
+    df = pd.read_csv(os.path.join(root,folder_name,"Setup",f'{save_name}_ctr.csv'))
 
     for j in df.index:
         try:

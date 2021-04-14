@@ -9,6 +9,8 @@ client_list = pd.read_excel(r'C:\Users\JLee35\dentsu\Automation - Documents\Gene
 client_list['STAT ID'] = client_list['STAT ID'].astype(int) # ensure that STAT ID is not a float
 client_list['STAT ID'] = client_list['STAT ID'].astype(str) # ensure that STAT ID is str
 
+client_list = client_list[client_list['Status'] != "Complete"].reset_index(drop=True)
+
 print('Done!')
 #%%
 
