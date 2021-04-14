@@ -39,7 +39,7 @@ logger = logging.getLogger("bcr_api")
 #%%
 
 root = fr"C:\Users\JLee35\dentsu\iProspect Hub - Documents\Channels\Social Media\Organic Social & Influencers\Product\Organic Social\Brandwatch Automation\Hammerson"
-save_path = f"{year}\Brandwatch Report {save_date}.csv"
+save_path = fr"{year}\Brandwatch Report {save_date}.csv"
 
 try:
     queries_list = pd.read_csv(os.path.join(root,save_path))
