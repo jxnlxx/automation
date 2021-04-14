@@ -1,5 +1,11 @@
 # deepcrawl.py
 
-dc_url = 'https://api.deepcrawl.com/sessions'
-dc_key = '1598'
-dc_value = 'FPXwkQUsX-qqqnhB_HLbHzO9brrycphhHKQwBwHOneNTP5Ur-5Dx_k2y_E57__4gWSGj810c'
+import requests
+from deepcrawlcreds import dc_url, dc_key, dc_value # saved in env/Lib/site-packages
+
+def get_token():
+    response = requests.post(dc_url, auth=(dc_key, dc_value), verify=True) # auth with deepcrawl
+    response = response.json()
+    token = response['token'] # gets the token from the json response
+    headers = {'X-Auth-Token':token} # create variable for adding into header of requests
+    return headers
