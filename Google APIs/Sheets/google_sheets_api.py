@@ -23,11 +23,10 @@ df = get_as_dataframe(sheet.worksheet(gsheet_name), parse_dates=True) # usecols=
 
 # get_as_dataframe automatically loads 25 cols x 1k rows, so we trim it:
 df = df.dropna(axis=1, how="all")
-df = df.dropna(axis=0, how="all")
+df = hc_list.dropna(axis=0, how="all")
 
 
 # DO STUFF HERE
-
 
 
 # upload dataframe to google sheets
