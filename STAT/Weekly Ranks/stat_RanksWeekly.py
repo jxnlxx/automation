@@ -4,11 +4,11 @@ import os
 import time
 import json
 import sqlite3
-import datetime as dt
 import requests
 import openpyxl
 import numpy as np
 import pandas as pd
+import datetime as dt
 import xlsxwriter as xl
 import getstat
 
@@ -26,19 +26,9 @@ client_list["STAT ID"] = client_list["STAT ID"].astype(str) # ensure that STAT I
 
 client_list = client_list[client_list["Weekly Report"] != "Inactive"]
 
-print("Client list loaded!")
+print("Client list loaded!\n")
 
-#%% filter by client name
-
-client_name = "musicMagpie Store"
-client_list = client_list[client_list["Client Name"] == client_name]
-
-#%% filter by client folder
-
-folder_name = "Entertainment Magpie"
-client_list = client_list[client_list["Folder Name"] == folder_name]
-
-#%% amalgamate ranks by week and set date as 1st day of week
+# amalgamate ranks by week and set date as 1st day of week
 
 root = fr"C:\Users\JLee35\dentsu\iProspect Hub - Documents\Channels\Owned & Earned\Automation\STAT\Clients"
 
@@ -94,12 +84,13 @@ for i in client_list.index:
         print(f"Beginning RanksWeekly_{save_name}...")
         pass
     else:
-        print(f"{client_name} up-to-date!\n")
+        print(f"{client_name} up-to-date!")
+        print(f"\n----------------------\n")
         continue
 
 #   aggregate ranks by week
     counter =0
-    num_weeks = int(np.floor((end_date - start_date).days /7))
+    num_weeks = int(np.floor((end_date - start_date).days /6))
     if week_start == "Monday":
         for j in getstat.mon_weekspan(start_date,end_date):
             con = sqlite3.connect(os.path.join(root, folder_name, database_name))
@@ -159,7 +150,7 @@ for i in client_list.index:
             con.commit()
             con.close()
             print(f"Done!")
-            print("\n---------------------\n")
+            print(f"\n----------------------\n")
             time.sleep(2)
 
     if week_start == "Sunday":
@@ -222,18 +213,24 @@ for i in client_list.index:
             con.commit()
             con.close()
             print(f"Done!")
-            print("\n---------------------\n")
+            print(f"\n----------------------\n")
             time.sleep(2)
 
         con.close()
 
-#%% upload RanksWeekly to gsheets
+print("Weekly Ranks complete!")
+print(f"\n----------------------\n")
+
+# upload RanksWeekly to gsheets
+
+scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
+google_auth = r"C:\Users\JLee35\OneDrive - Dentsu Aegis Network\PROJECTS\Python\APIs\keys\iprospectseonorth\google_auth.json"
+creds = ServiceAccountCredentials.from_json_keyfile_name(google_auth, scope)
 
 for i in client_list.index:
     folder_name = client_list["Folder Name"][i]
     client_name = client_list["Client Name"][i]
     stat_id = client_list["STAT ID"][i]
-    gspread_id = client_list["GSheet ID"][i]
 
     database_name = getstat.dbize(folder_name)
     save_name = getstat.scrub(client_name)
@@ -276,15 +273,12 @@ for i in client_list.index:
     df["Product"] = df["Rank"] * df["Search Volume"]
 
 #   upload ranksweekly_df to gsheets
-    gspread_id = client_list["GSheet ID"][i]
     gsheet_name = f"{client_name} - Weekly Ranks"
-    print(f"\nRetrieving '{gsheet_name}' table from Google Sheets...")
-    scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
-    google_auth = r"C:\Users\JLee35\OneDrive - Dentsu Aegis Network\PROJECTS\Python\APIs\keys\iprospectseonorth\google_auth.json"
-    creds = ServiceAccountCredentials.from_json_keyfile_name(google_auth, scope)
+    gspread_id = client_list["GSheet ID"][i]
+    print(f"Uploading '{gsheet_name}' to Google Sheets...")
     client = gspread.authorize(creds)
-
     sheet = client.open_by_key(gspread_id)
+
     try:
         worksheet = sheet.worksheet(gsheet_name)
         worksheet.clear()
@@ -294,6 +288,7 @@ for i in client_list.index:
     set_with_dataframe(worksheet, df)
 
     print(f"{client_name} complete!")
+    print(f"\n----------------------\n")
     con.close()
 
 print("\nDURN!")

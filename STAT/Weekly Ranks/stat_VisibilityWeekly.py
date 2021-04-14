@@ -22,9 +22,9 @@ client_list["STAT ID"] = client_list["STAT ID"].astype(str) # ensure that STAT I
 #   filter for only sites with "Weekly Report" not set as "Inactive"
 client_list = client_list[client_list["Weekly Report"] != "Inactive"]
 
-print("Client list loaded!")
+print("Client list loaded!\n")
 
-#%% transform data
+# transform data
 
 multiple_categories = []
 
@@ -90,7 +90,8 @@ for i in client_list.index:
         print(f"Beginning VisibilityWeekly_{save_name}")
         pass
     else:
-        print(f"{client_name} up-to-date!\n")
+        print(f"{client_name} up-to-date!")
+        print(f"\n----------------------\n")
         continue
 
     con.commit()
@@ -353,14 +354,16 @@ for i in client_list.index:
             con.commit()
         con.close()
         print(f"Completed {date}!")
-        print(f"\n---------------------\n")
+        print(f"\n----------------------\n")
         time.sleep(2)
 
-    print(f"\nCompleted {client_name}!\n")
+    print(f"\nCompleted {client_name}!")
+    print(f"\n----------------------\n")
 
 print("Data transformation complete!")
+print(f"\n----------------------\n")
 
-#%% upload last 4 weeks of VisibilityWeekly table to gsheets
+# upload last 4 weeks of VisibilityWeekly table to gsheets
 
 # authenticate with gsheets
 root = fr"C:\Users\JLee35\dentsu\iProspect Hub - Documents\Channels\Owned & Earned\Automation\STAT\Clients"
@@ -374,14 +377,12 @@ for i in client_list.index:
     folder_name = client_list["Folder Name"][i]
     client_name = client_list["Client Name"][i]
     stat_id = client_list["STAT ID"][i]
-    gspread_id = client_list["GSheet ID"][i]
 
     database_name = getstat.dbize(folder_name)
     save_name = getstat.scrub(client_name)
 
     con = sqlite3.connect(os.path.join(root, folder_name, database_name))
     cur = con.cursor()
-    print(f"\nRetrieving {client_name} visibility table from database...")
 
     cutoff = (dt.date.today() - dt.timedelta(days=40)).isoformat()
 
@@ -422,22 +423,23 @@ for i in client_list.index:
     df = df.replace("#41 - #50", "8.    #41 - #50")
     df = df.replace("#51 - #100", "9.    #51 - #100")
 
-    df_rows, df_cols = df.shape
-
-    print(f"Uploading '{client_name} - Weekly Visibility' to Google Sheets...")
-
+#   upload df to Google Sheets
+    gspread_id = client_list["GSheet ID"][i]
+    gsheet_name = f"{client_name} - Weekly Visibility"
+    print(f"Uploading '{gsheet_name}' to Google Sheets...")
     client = gspread.authorize(creds)
     sheet = client.open_by_key(gspread_id)
 
     try:
-        worksheet = sheet.worksheet(f"{client_name} - Weekly Visibility")
+        worksheet = sheet.worksheet(gsheet_name)
         worksheet.clear()
     except gspread.exceptions.WorksheetNotFound as err:
-        worksheet = sheet.add_worksheet(title=f"{client_name} - Weekly Visibility", rows=1, cols=1)
+        worksheet = sheet.add_worksheet(title=gsheet_name, rows=1, cols=1)
 
     set_with_dataframe(worksheet, df)
 
     print(f"{client_name} complete!")
+    print(f"\n---------------------\n")
 
     con.commit()
     con.close()

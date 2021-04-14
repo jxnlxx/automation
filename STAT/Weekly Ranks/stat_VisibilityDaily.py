@@ -1,4 +1,4 @@
-#%% architect_pace_VisibilityDaily_daily_multiple_categories.py
+#%% architect_pace_VisibilityDaily.py
 
 import os
 import time
@@ -22,9 +22,9 @@ client_list["STAT ID"] = client_list["STAT ID"].astype(str) # ensure that STAT I
 #   filter for only sites with databases set as "Complete"
 client_list = client_list[client_list["Architect Pace"] == "Active"]
 
-print("Client list loaded!")
+print("Client list loaded!\n")
 
-#%% transform data
+# transform data
 
 multiple_categories = ["JD Williams"]
 
@@ -70,39 +70,41 @@ for i in client_list.index:
         UNIQUE (Date, DeviceId, CriterionId, KeywordCategory1Id, KeywordCategory2Id)
         );""")
 
-    try:
-#   get start_date from visibility table
-        cur.execute(f"SELECT date FROM VisibilityDaily_{save_name} ORDER BY date DESC LIMIT 1;")
-        start_date = str(cur.fetchone()[0])
-        start_date = dt.datetime.strptime(start_date, "%Y-%m-%d").date() #  convert start_date string to date object
-        start_date = start_date + dt.timedelta(days=1) # add 1 day to start_date
-#   get end_date from requests table
-        cur.execute(f"SELECT date FROM Requests_{save_name} ORDER BY date DESC LIMIT 1;")
-        end_date = str(cur.fetchone()[0])
-        end_date = dt.datetime.strptime(end_date, "%Y-%m-%d").date() #  convert start_date string to date object
-    except TypeError:
-#   get start_date from requests table
-        cur.execute(f"SELECT date FROM Requests_{save_name} ORDER BY date ASC LIMIT 1;")
-        start_date = str(cur.fetchone()[0])
-        start_date = dt.datetime.strptime(start_date, "%Y-%m-%d").date() #  convert start_date string to date object
-#   get end_date from requests table
-        cur.execute(f"SELECT date FROM Requests_{save_name} ORDER BY date DESC LIMIT 1;")
-        end_date = str(cur.fetchone()[0])
-        end_date = dt.datetime.strptime(end_date, "%Y-%m-%d").date() #  convert start_date string to date object
+#   get dates from VisibilityDaily
+    cur.execute(f"SELECT date FROM VisibilityDaily_{save_name} ORDER BY date ASC")
+    VisibilityDaily_dates = cur.fetchall() # fetches list of tuples
+    VisibilityDaily_dates = [x[0] for x in VisibilityDaily_dates] # convert to list of strings
+    VisibilityDaily_dates = list(dict.fromkeys(VisibilityDaily_dates)) # remove duplicates
+
+#   get dates from RanksDaily
+    cur.execute(f"SELECT date FROM RanksDaily_{save_name} ORDER BY date ASC")
+    RanksDaily_dates = cur.fetchall()
+    RanksDaily_dates = [x[0] for x in RanksDaily_dates]
+    RanksDaily_dates = list(dict.fromkeys(RanksDaily_dates))
+
+#   get dates in RanksWeekly not present in VisibilityWeekly
+
+    dates_list = [x for x in RanksDaily_dates if x not in VisibilityDaily_dates]
+
+    if len(dates_list) > 0:
+        print(f"Beginning VisibilityWeekly_{save_name}")
+        pass
+    else:
+        print(f"{client_name} up-to-date!")
+        print(f"\n----------------------\n")
+        continue
 
     con.commit()
     con.close()
 
-    counter = 1
-    for j in pd.date_range(start_date, end_date):
+    counter = 0
+    for date in dates_list:
         con = sqlite3.connect(os.path.join(root, folder_name, database_name))
         cur = con.cursor()
 
-        month = j.strftime("%b")
-        date = str(j.strftime("%Y-%m-%d"))
-
-        print(f"{client_name} - job {counter} of {len(pd.date_range(start_date, end_date))}")
         counter += 1
+        print(f"\n----------------------\n")
+        print(f"{client_name} - job {counter} of {len(dates_list)}")
 
         print(f"Starting {date}...")
 
@@ -131,22 +133,8 @@ for i in client_list.index:
 
 #   create list of devices
         device_list = list(dict.fromkeys(df["Device"].to_list()))
-        category1_list = list(dict.fromkeys(df["Category1"].to_list()))
-        try:
-            category1_list.remove("")
-        except ValueError:
-            pass
 
-#   create category2_list
-        try:
-            category2_list = list(dict.fromkeys(df["Category2"].to_list()))
-        except KeyError:
-            category2_list =[]
-        try:
-            category2_list.remove("")
-        except (ValueError,NameError) as e:
-            pass
-
+#   create list of criteria
         cur.execute("""SELECT Criterion from Criteria""")
         criteria_list = cur.fetchall() # fetches list of tuples
         criteria_list = [x[0] for x in criteria_list] # convert to list of strings
@@ -159,6 +147,20 @@ for i in client_list.index:
         for device in device_list:
             device_df = df[df["Device"] == device]
             device_df = device_df[device_df["Category1"] != ""] # remove any untagged category 1
+
+#   create category1_list
+            category1_list = list(dict.fromkeys(device_df["Category1"].to_list()))
+            try:
+                category1_list.remove("")
+            except (ValueError, NameError) as e:
+                pass
+
+#   create category2_list
+            category2_list = list(dict.fromkeys(df["Category2"].to_list()))
+            try:
+                category2_list.remove("")
+            except (ValueError, NameError) as e:
+                pass
 
             category1 = "All Keywords"
             category2 = ""
@@ -336,33 +338,32 @@ for i in client_list.index:
                 KeywordCategory1Id = int(cur.fetchone()[0])
 
 #   category2
-            if client_name in multiple_categories:
+            cur.execute("SELECT Id FROM KeywordCategory2 WHERE Category = ? LIMIT 1", (KeywordCategory2,))
+            try:
+                KeywordCategory2Id = int(cur.fetchone()[0])
+            except:
+                cur.execute("INSERT OR IGNORE INTO KeywordCategory2 (Category) VALUES (?)", (KeywordCategory2,))
                 cur.execute("SELECT Id FROM KeywordCategory2 WHERE Category = ? LIMIT 1", (KeywordCategory2,))
-                try:
-                    KeywordCategory2Id = int(cur.fetchone()[0])
-                except:
-                    cur.execute("INSERT OR IGNORE INTO KeywordCategory2 (Category) VALUES (?)", (KeywordCategory2,))
-                    cur.execute("SELECT Id FROM KeywordCategory2 WHERE Category = ? LIMIT 1", (KeywordCategory2,))
-                    KeywordCategory2Id = int(cur.fetchone()[0])
+                KeywordCategory2Id = int(cur.fetchone()[0])
 
 #   insert into database
-                cur.execute(
-                    f"""INSERT OR IGNORE INTO VisibilityDaily_{save_name}
-                    (Date, DeviceId, CriterionId, KeywordCategory1Id, KeywordCategory2Id, Score)
-                    VALUES (?, ?, ?, ?, ?, ?)""",
-                    (date, DeviceId, CriterionId, KeywordCategory1Id, KeywordCategory2Id, Score,))
+            cur.execute(
+                f"""INSERT OR IGNORE INTO VisibilityDaily_{save_name}
+                (Date, DeviceId, CriterionId, KeywordCategory1Id, KeywordCategory2Id, Score)
+                VALUES (?, ?, ?, ?, ?, ?)""",
+                (date, DeviceId, CriterionId, KeywordCategory1Id, KeywordCategory2Id, Score,))
 
             con.commit()
         con.close()
         print(f"Completed {date}!")
-        print(f"\n---------------------\n")
         time.sleep(2)
 
-    print(f"\nCompleted {client_name}!\n")
-
+    print(f"\nCompleted {client_name}!")
+    print(f"\n----------------------\n")
 print("Data transformation complete!")
+print(f"\n----------------------\n")
 
-#%% upload last year of VisibilityDaily table to gsheets
+# upload last year of VisibilityDaily table to gsheets
 
 # authenticate with gsheets
 scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
@@ -374,21 +375,18 @@ for i in client_list.index:
     folder_name = client_list["Folder Name"][i]
     client_name = client_list["Client Name"][i]
     stat_id = client_list["STAT ID"][i]
-    gspread_id = client_list["GSheet ID"][i]
 
     database_name = getstat.dbize(folder_name)
     save_name = getstat.scrub(client_name)
 
     con = sqlite3.connect(os.path.join(root, folder_name, database_name))
     cur = con.cursor()
-    print(f"\nRetrieving {client_name} visibility table from database...")
 
-    today = dt.date.today().strftime("%m-%d")
-    year_ago = dt.date.today().year - 1
-    if today == '02-29':
-        year_ago = end_date.replace(day=28,year=year_ago).strftime("%Y-%m-%d")
+    today = dt.date.today()
+    if today.strftime("%m-%d") == "02-29":
+        year_ago = today.replace(day=28,year=today.year - 1).strftime("%Y-%m-%d")
     else:
-        year_ago = end_date.replace(year=year_ago).strftime("%Y-%m-%d")
+        year_ago = today.replace(year=today.year - 1).strftime("%Y-%m-%d")
 
     sql = f"""
     SELECT VisibilityDaily_{save_name}.Date,
@@ -410,29 +408,34 @@ for i in client_list.index:
     df2 = df.copy()
     df3 = df[~df["Category2"].isin([""])]
 
-    for i in df3.index:
-        df2.at[i,"Category1"] = ""
+    for j in df3.index:
+        df2.at[j,"Category1"] = ""
 
     df2["Category"] = df2["Category1"] + df2["Category2"]
     df = df2[["Date","Device","Criteria","Category","Score"]]
 
-    df_rows, df_cols = df.shape
-
-    print(f"Uploading {client_name} visibility table to Google Sheets...")
-
+#   upload df to gsheets
+    gsheet_name = f"{client_name} - Visibility"
+    gspread_id = client_list["GSheet ID"][i]
+    print(f"Uploading '{gsheet_name}' to Google Sheets...")
     client = gspread.authorize(creds)
     sheet = client.open_by_key(gspread_id)
 
     try:
-        worksheet = sheet.worksheet(f"{client_name} - Visibility")
+        worksheet = sheet.worksheet(gsheet_name)
         worksheet.clear()
     except gspread.exceptions.WorksheetNotFound as err:
-        worksheet = sheet.add_worksheet(title=f"{client_name} - Visibility", rows=1, cols=1)
+        worksheet = sheet.add_worksheet(title=gsheet_name, rows=1, cols=1)
 
     set_with_dataframe(worksheet, df)
+    con.close()
 
     print(f"{client_name} complete!")
-
-print("\nDURN!")
+    print(f"\n----------------------\n")
+print("DURN!")
 
 #%%
+
+client_list = client_list[client_list["Client Name"] == "Simply Be"]
+
+# %%

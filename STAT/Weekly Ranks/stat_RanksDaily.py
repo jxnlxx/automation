@@ -38,9 +38,9 @@ for i in client_list.index:
     cur = con.cursor()
 
 #   get date of next request
-    requests_df = pd.read_sql_query(f"SELECT * FROM Requests_{save_name}", con)
     try:
-        start_date = requests_df["Date"].iloc[-1] # get last value in requests_df["date"] as start_date
+        cur.execute(f"SELECT date FROM Requests_{save_name} ORDER BY date DESC LIMIT 1;")
+        start_date = str(cur.fetchone()[0])
         start_date = dt.datetime.strptime(start_date, "%Y-%m-%d").date() #  convert start_date string to date object
         start_date = start_date + dt.timedelta(days=1) # add 1 day to start_date
     except (KeyError, IndexError) as e:
@@ -53,6 +53,7 @@ for i in client_list.index:
         pass
     else:
         print(f"{client_name} up-to-date!")
+        print(f"\n----------------------\n")
         continue
 
 #   request reports for between "start_date" and "end_date"
@@ -73,7 +74,8 @@ for i in client_list.index:
     con.commit()
     con.close()
 
-print(f"\n{count} reports requested!")
+print(f"\n----------------------\n")
+print(f"{count} reports requested!")
 sleep = count*10
 print(f"Sleeping for {sleep} seconds...")
 t = 0
@@ -81,6 +83,7 @@ while t < sleep:
     time.sleep(30)
     t += 30
     print(t)
+print(f"\n----------------------\n")
 
 incomplete = [] # for list of skipped clients due to incomplete stat jobs
 
@@ -101,14 +104,17 @@ for i in client_list.index:
         final_job = requests_df["JobId"].iloc[-1]
     except IndexError:
         print(f"{client_name} is up-to-date!")
+        print(f"\n----------------------\n")
+
         continue
-    print(f"\nChecking {client_name} final job status...")
+    print(f"Checking {client_name} final job status...")
     status = getstat.job_status(final_job)
     current_time = dt.datetime.now().strftime("%H:%M")
     if status != "Completed":
         print(f"{current_time} - Final job status: {status}")
         print(f"Skipping {client_name}...")
         incomplete += [client_name]
+        print(f"\n----------------------\n")
         continue
     else:
         print(f"{current_time} - Final job status: {status}")
@@ -304,7 +310,7 @@ for i in client_list.index:
         con.commit()
         con.close()
         print(f"Done!")
-        print("\n---------------------\n")
+        print(f"\n----------------------\n")
         time.sleep(2)
 
 if len(incomplete) > 0:
@@ -312,7 +318,7 @@ if len(incomplete) > 0:
     for i in incomplete:
         print(i)
 else:
-    print("\nDURN!")
+    print("DURN!")
 
 end_time = dt.datetime.now().strftime("%H:%M:%S")
 print("\nStart:\t", start_time)
